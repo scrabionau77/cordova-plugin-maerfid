@@ -22,7 +22,7 @@ public class MaeRfid extends CordovaPlugin {
   /**
      * Constructor.
      */
-  public Device() {
+  public MaeRfid() {
   } 
 
   
