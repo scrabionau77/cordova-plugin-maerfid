@@ -9,16 +9,15 @@
     <license>MIT</license>
     <author>Maestrale Information Technology - Daniele Pellerucci</author>
     <keywords></keywords>
-    <repo>https://github.com/driftyco/cordova-plugin-template.git</repo>
-    <issue>https://github.com/driftyco/cordova-plugin-template/issues</issue>
+    <repo>https://github.com/scrabionau77/cordova-plugin-maerfid.git</repo>
+    <issue>https://github.com/scrabionau77/cordova-plugin-maerfid/issues</issue>
+
+    <js-module src="www/maerfid.js" name="maerfid">        
+      <clobbers target="MaeRfid" /> <!-- This is the window variable name you want, like window.MaeRfid -->
+    </js-module>
 
     <!-- android -->
     <platform name="android">
-      <js-module src="www/maerfid.js" name="maerfid">
-
-        <!-- This is the window variable name you want, like window.MaeRfid -->
-        <clobbers target="MaeRfid" />
-      </js-module>
       <config-file target="res/xml/config.xml" parent="/*">
         <feature name="MaeRfid">
           <param name="android-package" value="com.maestrale.maerfid.MaeRfid" />
