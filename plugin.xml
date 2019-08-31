@@ -27,7 +27,7 @@
       <source-file src="src/android/MaeRfid.java" target-dir="src/com/maestrale/maerfid" />
       
       <framework src="src/android/caenrfid.gradle" custom="true" type="gradleReference" />
-      <lib-file src="aar/CAENRFIDLibrary-release.aar" target="aar/CAENRFIDLibrary-release.aar" />
+      <resource-file src="aar/CAENRFIDLibrary-release.aar" target="libs/CAENRFIDLibrary-release.aar" />
     </platform>
 
     <!-- browser -->
