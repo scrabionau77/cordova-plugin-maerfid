@@ -25,6 +25,8 @@
       </config-file>
 
       <source-file src="src/android/MaeRfid.java" target-dir="src/com/maestrale/maerfid" />
+      <lib-file src="src/android/caenrfid/CAENRFIDLibrary.jar" arch="device" />
+      <lib-file src="src/android/caenrfid/CAENRFIDLibrary.jar" arch="simulator" />
     </platform>
 
     <!-- browser -->
