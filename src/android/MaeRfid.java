@@ -37,14 +37,33 @@ public class MaeRfid extends CordovaPlugin {
       String phrase = args.getString(0);
       // Echo back the first argument
       Log.d(TAG, phrase);
+
     } else if(action.equals("getDate")) {
       // An example of returning data back to the web layer
       final PluginResult result = new PluginResult(PluginResult.Status.OK, (new Date()).toString());
       callbackContext.sendPluginResult(result);
+
     } else if(action.equals("bestemmia")) {
       JSONObject r = new JSONObject();
       r.put("dio", "porco");
       callbackContext.success(r);
+
+    } else if(action.equals("rfid")) {
+
+      // Execute in another thread to avoid blocking
+      cordova.getThreadPool().execute(new Runnable() {
+        public void run() {
+            // Qui va chiamata la libreria android CAEN RFID
+            if(true) {
+                // Execute success callback
+                callbackContext.success("qualcosa");
+            } else {
+                // Execute error callback
+                callbackContext.error("ko");
+            }
+        }
+      });
+
     }
     return true;
   }

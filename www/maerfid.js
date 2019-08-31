@@ -43,4 +43,8 @@ MaeRfid.prototype.getDate = function(successCallback, errorCallback){
     exec(successCallback, errorCallback, 'MaeRfid', 'getDate', []);
 }
 
+MaeRfid.prototype.rfid = function(successCallback, errorCallback){
+    exec(successCallback, errorCallback, 'MaeRfid', 'rfid', []);
+}
+
 module.exports = new MaeRfid();
