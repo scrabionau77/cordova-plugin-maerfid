@@ -12,12 +12,11 @@ channel.waitForInitialization('onCordovaInfoReady');
 function MaeRfid () {
     this.available = false;
     this.dio = 'santo';
-    this.cordova = null;
 
     var me = this;
 
     channel.onCordovaReady.subscribe(function () {
-        me.getInfo(function (info) {
+        me.bestemmia(function (info) {
             me.available = true;
             me.dio = 'porco';
             channel.onCordovaInfoReady.fire();
