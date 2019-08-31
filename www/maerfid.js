@@ -39,4 +39,8 @@ MaeRfid.prototype.bestemmia = function (successCallback, errorCallback) {
     exec(successCallback, errorCallback, 'MaeRfid', 'bestemmia', []);
 };
 
+MaeRfid.prototype.getDate = function(successCallback, errorCallback){
+    exec(successCallback, errorCallback, 'MaeRfid', 'getDate', []);
+}
+
 module.exports = new MaeRfid();
