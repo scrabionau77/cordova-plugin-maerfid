@@ -8,7 +8,7 @@
     <description>Rfid Plugin</description>
     <license>MIT</license>
     <author>Maestrale Information Technology - Daniele Pellerucci</author>
-    <keywords></keywords>
+    <keywords>caen,rfid</keywords>
     <repo>https://github.com/scrabionau77/cordova-plugin-maerfid.git</repo>
     <issue>https://github.com/scrabionau77/cordova-plugin-maerfid/issues</issue>
 
