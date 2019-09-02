@@ -38,7 +38,7 @@ public class MaeRfid extends CordovaPlugin {
         String args = params.getString(0);
 
         if(action.equals("echo")) {
-            String phrase = args.getString(0);
+            //String phrase = args.getString(0);
             // Echo back the first argument
             Log.d(TAG, args);
 
@@ -52,7 +52,7 @@ public class MaeRfid extends CordovaPlugin {
             r.put("dio", "porco");
             callbackContext.success(r);
 
-        } else if(action.equals("rfid")) {
+        } else if(action.equals("connect")) {
 
             // Execute in another thread to avoid blocking
             cordova.getThreadPool().execute(new Runnable() {

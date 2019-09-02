@@ -41,10 +41,10 @@ MaeRfid.prototype.bestemmia = function (successCallback, errorCallback) {
 
 MaeRfid.prototype.getDate = function(successCallback, errorCallback){
     exec(successCallback, errorCallback, 'MaeRfid', 'getDate', []);
-}
+};
 
-MaeRfid.prototype.rfid = function(successCallback, errorCallback){
-    exec(successCallback, errorCallback, 'MaeRfid', 'rfid', []);
-}
+MaeRfid.prototype.connect = function(successCallback, errorCallback){
+    exec(successCallback, errorCallback, 'MaeRfid', 'connect', []);
+};
 
 module.exports = new MaeRfid();
