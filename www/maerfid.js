@@ -10,6 +10,7 @@ channel.waitForInitialization('onCordovaInfoReady');
 
 
 function MaeRfid () {
+    /*
     this.available = false;
     this.dio = 'santo';
 
@@ -25,7 +26,7 @@ function MaeRfid () {
             me.dio = 'sbudellato';
             utils.alert('[ERROR] Error initializing Cordova: ' + e);
         });
-    });
+    });*/
 }
 
 /**
