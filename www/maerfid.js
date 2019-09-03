@@ -10,23 +10,18 @@ channel.waitForInitialization('onCordovaInfoReady');
 
 
 function MaeRfid () {
-    /*
     this.available = false;
-    this.dio = 'santo';
-
     var me = this;
 
     channel.onCordovaReady.subscribe(function () {
         me.bestemmia(function (info) {
             me.available = true;
-            me.dio = 'porco';
             channel.onCordovaInfoReady.fire();
         }, function (e) {
             me.available = false;
-            me.dio = 'sbudellato';
-            utils.alert('[ERROR] Error initializing Cordova: ' + e);
+            utils.alert('[ERROR] MAE-RFID Error initializing Cordova: ' + e);
         });
-    });*/
+    });
 }
 
 /**
