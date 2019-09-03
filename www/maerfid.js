@@ -14,7 +14,8 @@ function MaeRfid () {
     var me = this;
 
     channel.onCordovaReady.subscribe(function () {
-        me.bestemmia(function (info) {
+        alert('Subscribe!');
+        me.getDate(function (info) {
             me.available = true;
             channel.onCordovaInfoReady.fire();
         }, function (e) {
@@ -38,9 +39,9 @@ MaeRfid.prototype.bestemmia = function (successCallback, errorCallback) {
 MaeRfid.prototype.getDate = function(successCallback, errorCallback){
     exec(successCallback, errorCallback, 'MaeRfid', 'getDate', []);
 };
-
+/*
 MaeRfid.prototype.connect = function(successCallback, errorCallback){
     exec(successCallback, errorCallback, 'MaeRfid', 'connect', []);
-};
+};*/
 
 module.exports = new MaeRfid();

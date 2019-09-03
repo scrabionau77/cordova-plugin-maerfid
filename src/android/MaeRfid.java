@@ -52,7 +52,7 @@ public class MaeRfid extends CordovaPlugin {
             r.put("dio", "porco");
             callbackContext.success(r);
 
-        } /*else if(action.equals("connect")) {
+        } else if(action.equals("connect")) {
 
             // Execute in another thread to avoid blocking
             cordova.getThreadPool().execute(new Runnable() {
@@ -70,7 +70,7 @@ public class MaeRfid extends CordovaPlugin {
                 }
             });
 
-        }*/
+        }
         return true;
     }
 
