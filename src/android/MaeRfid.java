@@ -12,7 +12,7 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import com.caen.RFIDLibrary.*;
+//import com.caen.RFIDLibrary.*;
 
 import android.util.Log;
 import java.util.Date;
