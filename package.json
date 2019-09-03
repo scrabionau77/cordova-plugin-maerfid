@@ -4,8 +4,7 @@
   "cordova": {
     "id": "cordova-plugin-maerfid",
     "platforms": [
-      "android",
-      "browser"
+      "android"
     ]
   },
   "description": "Custom cordova plugin by Maestrale Information Technology - Devoper Daniele Pellerucci"
