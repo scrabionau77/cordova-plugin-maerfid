@@ -14,14 +14,7 @@ function MaeRfid () {
     var me = this;
 
     channel.onCordovaReady.subscribe(function () {
-        alert('Subscribe!');
-        me.getDate(function (info) {
-            me.available = true;
-            channel.onCordovaInfoReady.fire();
-        }, function (e) {
-            me.available = false;
-            utils.alert('[ERROR] MAE-RFID Error initializing Cordova: ' + e);
-        });
+        console.log('Subscribe!');
     });
 }
 
