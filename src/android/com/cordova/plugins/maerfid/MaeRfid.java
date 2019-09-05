@@ -274,13 +274,14 @@ public class MaeRfid extends CordovaPlugin {
      * check application's permissions
      */
    public boolean hasPermisssion() {
-       for(String p : permissions)
+       /*for(String p : permissions)
        {
            if(!PermissionHelper.hasPermission(this, p))
            {
                return false;
            }
        }
+       */
        return true;
    }
 
@@ -292,7 +293,7 @@ public class MaeRfid extends CordovaPlugin {
      */
    public void requestPermissions(int requestCode)
    {
-       PermissionHelper.requestPermissions(this, requestCode, permissions);
+       //PermissionHelper.requestPermissions(this, requestCode, permissions);
    }
 
    /**
@@ -318,7 +319,7 @@ public class MaeRfid extends CordovaPlugin {
        switch(requestCode)
        {
            case 0:
-               scan(this.requestArgs);
+               //scan(this.requestArgs);
                break;
        }
    }
