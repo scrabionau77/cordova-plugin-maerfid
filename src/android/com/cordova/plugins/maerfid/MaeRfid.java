@@ -129,9 +129,7 @@ public class MaeRfid extends CordovaPlugin {
             mPermissionIntent = PendingIntent.getBroadcast(webView.getContext(), 0, new Intent(ACTION_USB_PERMISSION), 0);
         }
 
-        boolean usbHostFeature = cordova.getActivity().getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST);
-        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, usbHostFeature));
-        return true;
+        
 
         if (action.equals(ENCODE)) {
             JSONObject obj = args.optJSONObject(0);
@@ -166,6 +164,10 @@ public class MaeRfid extends CordovaPlugin {
             */
         } else if (action.equals("connect")) {
 
+            boolean usbHostFeature = cordova.getActivity().getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST);
+            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, usbHostFeature));
+            return true;
+            /*
             // Execute in another thread to avoid blocking
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
@@ -196,6 +198,7 @@ public class MaeRfid extends CordovaPlugin {
                     }
                 }
             });
+            */
         } else {
             return false;
         }
