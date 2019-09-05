@@ -1,4 +1,4 @@
-package com.maestrale.rfid;
+package com.cordova.plugins.maerfid;
 
 import android.app.Application;
 import android.content.Context;
