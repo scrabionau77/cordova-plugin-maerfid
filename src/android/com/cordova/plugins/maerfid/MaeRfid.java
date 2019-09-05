@@ -21,6 +21,7 @@ import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.content.pm.PackageManager;
+import android.app.PendingIntent;
 
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
