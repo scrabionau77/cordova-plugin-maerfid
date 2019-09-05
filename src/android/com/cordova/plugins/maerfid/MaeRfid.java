@@ -22,7 +22,9 @@ import android.content.pm.PackageManager;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.PluginResult;
-import org.apache.cordova.PermissionHelper;
+//import org.apache.cordova.PermissionHelper;
+//import java.security.Permission;
+
 /*
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.encode.EncodeActivity;
@@ -61,6 +63,8 @@ public class MaeRfid extends CordovaPlugin {
 
     private static final String LOG_TAG = "MaeRfid";
 
+    private String [] permissions = { Manifest.permission.CAMERA };
+
     private JSONArray requestArgs;
     private CallbackContext callbackContext;
 
@@ -83,8 +87,7 @@ public class MaeRfid extends CordovaPlugin {
      * @param args            The exec() arguments.
      * @param callbackContext The callback context used when calling back into JavaScript.
      * @return                Whether the action was valid.
-     *
-     * @sa https://github.com/apache/cordova-android/blob/master/framework/src/org/apache/cordova/CordovaPlugin.java
+     * 
      */
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
@@ -107,7 +110,7 @@ public class MaeRfid extends CordovaPlugin {
                     return true;
                 }
 
-                encode(type, data);
+                //encode(type, data);
             } else {
                 callbackContext.error("User did not specify data to encode");
                 return true;
@@ -115,11 +118,13 @@ public class MaeRfid extends CordovaPlugin {
         } else if (action.equals(SCAN)) {
 
             //android permission auto add
+            /*
             if(!hasPermisssion()) {
               requestPermissions(0);
             } else {
               //scan(args);
             }
+            */
         } else {
             return false;
         }
@@ -252,6 +257,7 @@ public class MaeRfid extends CordovaPlugin {
      * @param type Endoiding type.
      * @param data The data to encode in the bar code.
      */
+    /*
     public void encode(String type, String data) {
         Intent intentEncode = new Intent(this.cordova.getActivity().getBaseContext(), EncodeActivity.class);
         intentEncode.setAction(Intents.Encode.ACTION);
@@ -262,6 +268,7 @@ public class MaeRfid extends CordovaPlugin {
 
         this.cordova.getActivity().startActivity(intentEncode);
     }
+    */
 
     /**
      * check application's permissions
