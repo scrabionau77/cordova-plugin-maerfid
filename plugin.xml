@@ -1,44 +1,37 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" id="cordova-plugin-maerfid" version="1.0.0">
-    <name>MaeRfid</name>
-    <description>Rfid Plugin</description>
-    <license>MIT</license>
-    <author>Maestrale Information Technology - Daniele Pellerucci</author>
-    <keywords>caen,rfid</keywords>
-    <repo>https://github.com/scrabionau77/cordova-plugin-maerfid.git</repo>
-    <issue>https://github.com/scrabionau77/cordova-plugin-maerfid/issues</issue>
-
-    <js-module src="www/maerfid.js" name="maerfid">        
-      <clobbers target="MaeRfid" /> <!-- This is the window variable name you want, like window.MaeRfid -->
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:rim="http://www.blackberry.com/ns/widgets" id="cordova-plugin-maerfid" version="1.0.0">
+  <name>MaeRfid</name>
+  <description>Implement CAEN Rfid protocoll</description>
+  <license>MIT</license>
+  <repo>https://github.com/scrabionau77/cordova-plugin-maerfid.git</repo>
+  <issue>https://github.com/scrabionau77/cordova-plugin-maerfid/issues</issue>
+  <engines>
+    <engine name="cordova" version=">=7.1.0"/>
+    <engine name="cordova-android" version=">=6.3.0"/>
+  </engines>
+  <js-module src="www/maerfid.js" name="MaeRfid">
+    <clobbers target="cordova.plugins.maerfid"/>
+  </js-module>
+  <platform name="android">
+    <source-file src="src/android/com/cordova/plugins/maerfid/MaeRfid.java" target-dir="src/com/cordova/plugins/maerfid"/>
+    <config-file target="res/xml/config.xml" parent="/*">
+      <feature name="MaeRfid">
+        <param name="android-package" value="com.cordova.plugins.maerfid.MaeRfid"/>
+      </feature>
+    </config-file>
+    <framework src="src/android/maerfid.gradle" custom="true" type="gradleReference"/>
+    <framework src="com.android.support:support-v4:$ANDROID_SUPPORT_V4_VERSION"/>
+    <lib-file src="src/android/CAENRFIDLibrary-release.aar"/>
+    <preference name="ANDROID_SUPPORT_V4_VERSION" default="27.+"/>
+  </platform>
+  <platform name="browser">
+    <config-file target="config.xml" parent="/*">
+      <feature name="MaeRfid">
+        <param name="browser-package" value="MaeRfid"/>
+      </feature>
+    </config-file>
+    <js-module src="src/browser/MaeRfidProxy.js" name="MaeRfidProxy">
+      <runs/>
     </js-module>
-
-    <!-- android -->
-    <platform name="android">
-      <config-file target="res/xml/config.xml" parent="/*">
-        <feature name="MaeRfid">
-          <param name="android-package" value="com.maestrale.maerfid.MaeRfid" />
-        </feature>
-      </config-file>
-
-      <source-file src="src/android/MaeRfid.java" target-dir="src/com/maestrale/maerfid" />
-      
-      <!--<framework src="src/android/caenrfid.gradle" custom="true" type="gradleReference" />
-      <resource-file src="aar/CAENRFIDLibrary-release.aar" target="libs/CAENRFIDLibrary-release.aar" />-->
-    </platform>
-
-    <!-- browser -->
-    <!--
-    <platform name="browser">
-        <config-file target="config.xml" parent="/*">
-            <feature name="MaeRfid">
-                <param name="browser-package" value="MaeRfid" />
-            </feature>
-        </config-file>
-
-        <js-module src="src/browser/MaeRfidProxy.js" name="MaeRfidProxy">
-            <runs />
-        </js-module>
-    </platform>
-    -->
+  </platform>
 </plugin>

@@ -1,11 +1,47 @@
 {
   "name": "cordova-plugin-maerfid",
   "version": "1.0.0",
+  "description": "Implement CAEN RFID protocol",
   "cordova": {
     "id": "cordova-plugin-maerfid",
     "platforms": [
-      "android"
+      "android",
+      "browser"
     ]
   },
-  "description": "Custom cordova plugin by Maestrale Information Technology - Devoper Daniele Pellerucci"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scrabionau77/cordova-plugin-maerfid.git"
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "ecosystem:phonegap",
+    "cordova-android",
+    "cordova-browser",
+    "cordova:plugin"
+  ],
+  "engines": {
+    "cordovaDependencies": {
+      "<7.0.0": {
+        "cordova-android": "<6.3.0"
+      },
+      "7.0.0": {
+        "cordova-android": ">=6.3.0"
+      },
+      "7.1.0": {
+        "cordova-android": ">=6.3.0",
+        "cordova": ">=7.1.0"
+      },
+      "8.0.0": {
+        "cordova-android": ">=6.3.0",
+        "cordova": ">=7.1.0"
+      }
+    }
+  },
+  "author": "Daniele Pellerucci @ Maestrale Information Technology",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/scrabionau77/cordova-plugin-maerfid/issues"
+  },
+  "homepage": "https://github.com/scrabionau77/cordova-plugin-maerfid#readme"
 }
