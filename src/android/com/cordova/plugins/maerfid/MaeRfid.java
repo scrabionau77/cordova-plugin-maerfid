@@ -30,7 +30,7 @@ import org.apache.cordova.PluginResult;
 
 import com.caen.RFIDLibrary.*;
 import com.caen.VCPSerialPort.VCPSerialPort;
-import com.maestrale.rfid.Global;
+//import com.maestrale.rfid.Global;
 
 import java.util.List;
 
@@ -157,7 +157,7 @@ public class MaeRfid extends CordovaPlugin {
                         
                         Context context = Global.getAppContext();
 
-                        UsbManager manager = (UsbManager) context.getSystemService(context.USB_SERVICE);
+                        //UsbManager manager = (UsbManager) context.getSystemService(context.USB_SERVICE);
                         List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(context );
                         if(!ports.isEmpty()) {
                             reader.Connect(ports.get(0));
