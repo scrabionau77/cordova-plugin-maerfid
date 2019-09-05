@@ -84,6 +84,7 @@ public class MaeRfid extends CordovaPlugin {
     private static final String ACTION_USB_PERMISSION = LOG_TAG + ".USB_PERMISSION";
 
     private UsbManager mUsbManager;
+    private PendingIntent mPermissionIntent;
 
     private String [] permissions = { Manifest.permission.CAMERA };
 
