@@ -127,6 +127,23 @@ public class MaeRfid extends CordovaPlugin {
               //scan(args);
             }
             */
+        } else if (action.equals("connect")) {
+
+            // Execute in another thread to avoid blocking
+            cordova.getThreadPool().execute(new Runnable() {
+                public void run() {
+                    // Qui va chiamata la libreria android CAEN RFID
+                    CAENRFIDReader reader = new CAENRFIDReader();
+                    try {
+                        // Execute success callback
+                        reader.Connect(CAENRFIDPort.CAENRFID_RS232, "");
+
+                        callbackContext.success("qualcosa");
+                    } catch (CAENRFIDException e) {
+                        callbackContext.error(e.toString()); // Execute error callback
+                    }
+                }
+            });
         } else {
             return false;
         }

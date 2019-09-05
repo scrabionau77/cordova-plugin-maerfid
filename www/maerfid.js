@@ -128,5 +128,25 @@ MaeRfid.prototype.scan = function (successCallback, errorCallback, config) {
             ]);
         };
 
+        //-------------------------------------------------------------------
+        MaeRfid.prototype.connect = function (successCallback, errorCallback, options) {
+            if (errorCallback == null) {
+                errorCallback = function () {
+                };
+            }
+
+            if (typeof errorCallback != "function") {
+                console.log("MaeRfid.encode failure: failure parameter not a function");
+                return;
+            }
+
+            if (typeof successCallback != "function") {
+                console.log("MaeRfid.encode failure: success callback parameter must be a function");
+                return;
+            }
+
+            exec(successCallback, errorCallback, 'MaeRfid', 'connect', options);
+        };
+
         var maeRfid = new MaeRfid();
         module.exports = maeRfid;
