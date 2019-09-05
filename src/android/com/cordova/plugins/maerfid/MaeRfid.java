@@ -25,6 +25,7 @@ import org.apache.cordova.PluginResult;
 //import org.apache.cordova.PermissionHelper;
 //import java.security.Permission;
 
+import com.caen.RFIDLibrary.*;
 /*
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.encode.EncodeActivity;
@@ -67,6 +68,7 @@ public class MaeRfid extends CordovaPlugin {
 
     private JSONArray requestArgs;
     private CallbackContext callbackContext;
+
 
     /**
      * Constructor.
