@@ -36,6 +36,8 @@ import com.google.zxing.client.android.Intents;
  */
 public class MaeRfid extends CordovaPlugin {
     public static final int REQUEST_CODE = 0x0ba7c;
+    public static final string ENCODE = "encode";
+    public static final string SCAN = "scan";
 
     private static final String LOG_TAG = "MaeRfid";
 
