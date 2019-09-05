@@ -36,7 +36,7 @@ import com.google.zxing.client.android.Intents;
  */
 public class MaeRfid extends CordovaPlugin {
     public static final int REQUEST_CODE = 0x0ba7c;
-    
+
     private static final String SCAN = "scan";
     private static final String ENCODE = "encode";
     private static final String CANCELLED = "cancelled";
@@ -118,7 +118,7 @@ public class MaeRfid extends CordovaPlugin {
             if(!hasPermisssion()) {
               requestPermissions(0);
             } else {
-              scan(args);
+              //scan(args);
             }
         } else {
             return false;
@@ -129,6 +129,7 @@ public class MaeRfid extends CordovaPlugin {
     /**
      * Starts an intent to scan and decode a barcode.
      */
+    /*
     public void scan(final JSONArray args) {
 
         final CordovaPlugin that = this;
@@ -203,7 +204,7 @@ public class MaeRfid extends CordovaPlugin {
                 that.cordova.startActivityForResult(that, intentScan, REQUEST_CODE);
             }
         });
-    }
+    }*/
 
     /**
      * Called when the barcode scanner intent completes.
