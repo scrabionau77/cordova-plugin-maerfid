@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.content.pm.PackageManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
@@ -86,8 +87,7 @@ public class MaeRfid extends CordovaPlugin {
 
     private UsbManager mUsbManager;
     private PendingIntent mPermissionIntent;
-
-    private String [] permissions = { Manifest.permission.CAMERA };
+    private BroadcastReceiver mUsbReceiver;
 
     private JSONArray requestArgs;
     private CallbackContext callbackContext;
@@ -128,6 +128,10 @@ public class MaeRfid extends CordovaPlugin {
             mUsbManager = (UsbManager) webView.getContext().getSystemService(Context.USB_SERVICE);
             mPermissionIntent = PendingIntent.getBroadcast(webView.getContext(), 0, new Intent(ACTION_USB_PERMISSION), 0);
         }
+
+        boolean usbHostFeature = cordova.getActivity().getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST);
+        callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, usbHostFeature));
+        return true;
 
         if (action.equals(ENCODE)) {
             JSONObject obj = args.optJSONObject(0);
