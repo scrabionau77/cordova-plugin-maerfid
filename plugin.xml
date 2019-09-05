@@ -21,17 +21,15 @@
       </feature>
     </config-file>
     <config-file target="AndroidManifest.xml" parent="/manifest">
-      <uses-permission android:name="android.permission.CAMERA"/>
-      <uses-permission android:name="android.permission.FLASHLIGHT"/>
-      <uses-feature android:name="android.hardware.camera" android:required="true"/>
+      <uses-feature android:name="android.hardware.usb.host" android:required="false" />
     </config-file>
-    <edit-config file="AndroidManifest.xml" target="/manifest/application" mode="merge">
-      <application android:name="com.cordova.plugins.maerfid.Global"/>
-    </edit-config>
     <framework src="src/android/maerfid.gradle" custom="true" type="gradleReference"/>
     <framework src="com.android.support:support-v4:$ANDROID_SUPPORT_V4_VERSION"/>
     <lib-file src="src/android/CAENRFIDLibrary-release.aar"/>
     <preference name="ANDROID_SUPPORT_V4_VERSION" default="27.+"/>
+    <edit-config file="AndroidManifest.xml" target="/manifest/application" mode="merge">
+      <application android:name="com.cordova.plugins.maerfid.Global"/>
+    </edit-config>
   </platform>
   <platform name="browser">
     <config-file target="config.xml" parent="/*">

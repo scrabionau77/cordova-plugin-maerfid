@@ -22,6 +22,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.content.pm.PackageManager;
 
+import android.hardware.usb.UsbConstants;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbEndpoint;
+import android.hardware.usb.UsbInterface;
+import android.hardware.usb.UsbManager;
+import android.hardware.usb.UsbRequest;
+
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.PluginResult;
@@ -73,6 +81,9 @@ public class MaeRfid extends CordovaPlugin {
     private static final String SMS_TYPE = "SMS_TYPE";
 
     private static final String LOG_TAG = "MaeRfid";
+    private static final String ACTION_USB_PERMISSION = LOG_TAG + ".USB_PERMISSION";
+
+    private UsbManager mUsbManager;
 
     private String [] permissions = { Manifest.permission.CAMERA };
 
@@ -110,6 +121,11 @@ public class MaeRfid extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
         this.callbackContext = callbackContext;
         this.requestArgs = args;
+
+        if (mUsbManager == null) {
+            mUsbManager = (UsbManager) webView.getContext().getSystemService(Context.USB_SERVICE);
+            mPermissionIntent = PendingIntent.getBroadcast(webView.getContext(), 0, new Intent(ACTION_USB_PERMISSION), 0);
+        }
 
         if (action.equals(ENCODE)) {
             JSONObject obj = args.optJSONObject(0);
