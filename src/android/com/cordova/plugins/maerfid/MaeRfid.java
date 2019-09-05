@@ -14,7 +14,10 @@ import org.json.JSONObject;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.content.pm.PackageManager;
@@ -26,6 +29,11 @@ import org.apache.cordova.PluginResult;
 //import java.security.Permission;
 
 import com.caen.RFIDLibrary.*;
+import com.caen.VCPSerialPort.VCPSerialPort;
+import com.maestrale.rfid.Global;
+
+import java.util.List;
+
 /*
 import com.google.zxing.client.android.CaptureActivity;
 import com.google.zxing.client.android.encode.EncodeActivity;
@@ -37,6 +45,8 @@ import com.google.zxing.client.android.Intents;
  *
  * @sa https://github.com/apache/cordova-android/blob/master/framework/src/org/apache/cordova/CordovaPlugin.java
  */
+
+
 public class MaeRfid extends CordovaPlugin {
     public static final int REQUEST_CODE = 0x0ba7c;
 
@@ -74,7 +84,12 @@ public class MaeRfid extends CordovaPlugin {
      * Constructor.
      */
     public MaeRfid() {
+
     }
+
+
+
+
 
     /**
      * Executes the request.
@@ -134,9 +149,24 @@ public class MaeRfid extends CordovaPlugin {
                 public void run() {
                     // Qui va chiamata la libreria android CAEN RFID
                     CAENRFIDReader reader = new CAENRFIDReader();
+
                     try {
+
                         // Execute success callback
-                        reader.Connect(CAENRFIDPort.CAENRFID_RS232, "");
+                        //reader.Connect(CAENRFIDPort.CAENRFID_RS232, "");
+                        
+                        Context context = Global.getAppContext();
+
+                        UsbManager manager = (UsbManager) context.getSystemService(context.USB_SERVICE);
+                        List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(context );
+                        if(!ports.isEmpty()) {
+                            reader.Connect(ports.get(0));
+                        }
+                        else
+                        {
+                            callbackContext.error("Reader non collegato!");
+                        }
+
 
                         callbackContext.success("qualcosa");
                     } catch (CAENRFIDException e) {
