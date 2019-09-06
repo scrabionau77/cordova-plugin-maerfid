@@ -30,7 +30,6 @@
     <edit-config file="AndroidManifest.xml" target="/manifest/application" mode="merge">
       <application android:name="com.cordova.plugins.maerfid.Global"/>
     </edit-config>
-    <source-file src="src/android/caenParameters.xml" target-dir="res/values/caenParameters.xml" />
   </platform>
   <platform name="browser">
     <config-file target="config.xml" parent="/*">
