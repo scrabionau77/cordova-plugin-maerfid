@@ -163,11 +163,15 @@ public class MaeRfid extends CordovaPlugin {
             }
             */
         } else if (action.equals("connect")) {
-
-            boolean usbHostFeature = cordova.getActivity().getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_USB_HOST);
-            callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.OK, usbHostFeature));
-            return true;
-            /*
+            
+            JSONObject obj = args.optJSONObject(0);
+            if (obj != null) {
+                String port = obj.optString("Port");
+                COM_PORT = port;
+            } else {
+                COM_PORT = "COM1";
+            }
+            
             // Execute in another thread to avoid blocking
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
@@ -198,7 +202,6 @@ public class MaeRfid extends CordovaPlugin {
                     }
                 }
             });
-            */
         } else {
             return false;
         }
