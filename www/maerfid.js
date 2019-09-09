@@ -172,7 +172,7 @@ MaeRfid.prototype.requestPermission = function (opts, successCallback, errorCall
         return;
     }
 
-    exec(successCallback, errorCallback, 'MaeRfid', 'requestPermission', opts);
+    exec(successCallback, errorCallback, 'MaeRfid', 'requestPermission', [{'opts': opts}]);
 };
 
 var maeRfid = new MaeRfid();
