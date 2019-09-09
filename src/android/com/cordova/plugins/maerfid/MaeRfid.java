@@ -49,6 +49,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.content.pm.PackageManager;
 
+import com.caen.RFIDLibrary.*;
+import com.caen.VCPSerialPort.VCPSerialPort;
+
 
 
 
