@@ -4,6 +4,11 @@
  * Copyright (c) 209, Daniele Pellerucci @ Maestrale Information Technology
  */
 
+
+var exec = cordova.require("cordova/exec");
+
+
+
 var maerfid = {
     requestPermission: function (opts, successCallback, errorCallback) {
         if (typeof opts === 'function') {  //user did not pass opts
