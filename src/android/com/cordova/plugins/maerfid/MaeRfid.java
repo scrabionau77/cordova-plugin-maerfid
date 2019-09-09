@@ -83,7 +83,7 @@ public class MaeRfid extends CordovaPlugin {
     private static final String SMS_TYPE = "SMS_TYPE";
 
     private static final String LOG_TAG = "MaeRfid";
-    private static final String COM_PORT = "";
+    private static final String COM_PORT = "COM1";
     private static final String ACTION_USB_PERMISSION = LOG_TAG + ".USB_PERMISSION";
 
     private UsbManager mUsbManager;
@@ -166,12 +166,14 @@ public class MaeRfid extends CordovaPlugin {
         } else if (action.equals("connect")) {
             
             JSONObject obj = args.optJSONObject(0);
+            /*
             if (obj != null) {
                 String port = obj.optString("Port");
                 COM_PORT = port;
             } else {
                 COM_PORT = "COM1";
             }
+            */
 
             // Execute in another thread to avoid blocking
             cordova.getThreadPool().execute(new Runnable() {
