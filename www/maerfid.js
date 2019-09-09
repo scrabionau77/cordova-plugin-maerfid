@@ -151,7 +151,12 @@ MaeRfid.prototype.connect = function (successCallback, errorCallback, options) {
 
 
 //-------------------------------------------------------------------
-MaeRfid.prototype.requestPermission = function (options, successCallback, errorCallback) {
+MaeRfid.prototype.requestPermission = function (opts, successCallback, errorCallback) {
+    if (typeof opts === 'function') {  //user did not pass opts
+        errorCallback = successCallback;
+        successCallback = opts;
+        opts = {};
+    }
     if (errorCallback == null) {
         errorCallback = function () {
         };
@@ -167,7 +172,7 @@ MaeRfid.prototype.requestPermission = function (options, successCallback, errorC
         return;
     }
 
-    exec(successCallback, errorCallback, 'MaeRfid', 'requestPermission', options);
+    exec(successCallback, errorCallback, 'MaeRfid', 'requestPermission', opts);
 };
 
 var maeRfid = new MaeRfid();
