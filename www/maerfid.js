@@ -73,80 +73,102 @@
  */
 MaeRfid.prototype.scan = function (successCallback, errorCallback, config) {
 
-            if (errorCallback == null) {
-                errorCallback = function () {
-                };
-            }
-
-            if (typeof errorCallback != "function") {
-                console.log("MaeRfid.scan failure: failure parameter not a function");
-                return;
-            }
-
-            if (typeof successCallback != "function") {
-                console.log("MaeRfid.scan failure: success callback parameter must be a function");
-                return;
-            }
-
-
-            exec(
-                function(result) {
-                    // work around bug in ZXing library
-                    if (result.format === 'UPC_A' && result.text.length === 13) {
-                        result.text = result.text.substring(1);
-                    }
-                    successCallback(result);
-                },
-                function(error) {
-                    errorCallback(error);
-                },
-                'MaeRfid',
-                'scan',
-                config
-            );
+    if (errorCallback == null) {
+        errorCallback = function () {
         };
+    }
 
-        //-------------------------------------------------------------------
-        MaeRfid.prototype.encode = function (type, data, successCallback, errorCallback, options) {
-            if (errorCallback == null) {
-                errorCallback = function () {
-                };
+    if (typeof errorCallback != "function") {
+        console.log("MaeRfid.scan failure: failure parameter not a function");
+        return;
+    }
+
+    if (typeof successCallback != "function") {
+        console.log("MaeRfid.scan failure: success callback parameter must be a function");
+        return;
+    }
+
+
+    exec(
+        function(result) {
+            // work around bug in ZXing library
+            if (result.format === 'UPC_A' && result.text.length === 13) {
+                result.text = result.text.substring(1);
             }
+            successCallback(result);
+        },
+        function(error) {
+            errorCallback(error);
+        },
+        'MaeRfid',
+        'scan',
+        config
+    );
+};
 
-            if (typeof errorCallback != "function") {
-                console.log("MaeRfid.encode failure: failure parameter not a function");
-                return;
-            }
-
-            if (typeof successCallback != "function") {
-                console.log("MaeRfid.encode failure: success callback parameter must be a function");
-                return;
-            }
-
-            exec(successCallback, errorCallback, 'MaeRfid', 'encode', [
-                {"type": type, "data": data, "options": options}
-            ]);
+//-------------------------------------------------------------------
+MaeRfid.prototype.encode = function (type, data, successCallback, errorCallback, options) {
+    if (errorCallback == null) {
+        errorCallback = function () {
         };
+    }
 
-        //-------------------------------------------------------------------
-        MaeRfid.prototype.connect = function (successCallback, errorCallback, options) {
-            if (errorCallback == null) {
-                errorCallback = function () {
-                };
-            }
+    if (typeof errorCallback != "function") {
+        console.log("MaeRfid.encode failure: failure parameter not a function");
+        return;
+    }
 
-            if (typeof errorCallback != "function") {
-                console.log("MaeRfid.encode failure: failure parameter not a function");
-                return;
-            }
+    if (typeof successCallback != "function") {
+        console.log("MaeRfid.encode failure: success callback parameter must be a function");
+        return;
+    }
 
-            if (typeof successCallback != "function") {
-                console.log("MaeRfid.encode failure: success callback parameter must be a function");
-                return;
-            }
+    exec(successCallback, errorCallback, 'MaeRfid', 'encode', [
+        {"type": type, "data": data, "options": options}
+    ]);
+};
 
-            exec(successCallback, errorCallback, 'MaeRfid', 'connect', options);
+//-------------------------------------------------------------------
+MaeRfid.prototype.connect = function (successCallback, errorCallback, options) {
+    if (errorCallback == null) {
+        errorCallback = function () {
         };
+    }
 
-        var maeRfid = new MaeRfid();
-        module.exports = maeRfid;
+    if (typeof errorCallback != "function") {
+        console.log("MaeRfid.encode failure: failure parameter not a function");
+        return;
+    }
+
+    if (typeof successCallback != "function") {
+        console.log("MaeRfid.encode failure: success callback parameter must be a function");
+        return;
+    }
+
+    exec(successCallback, errorCallback, 'MaeRfid', 'connect', options);
+};
+
+
+
+//-------------------------------------------------------------------
+MaeRfid.prototype.requestPermission = function (successCallback, errorCallback, options) {
+    if (errorCallback == null) {
+        errorCallback = function () {
+        };
+    }
+
+    if (typeof errorCallback != "function") {
+        console.log("MaeRfid.requestPermission failure: error callback parameter not a function");
+        return;
+    }
+
+    if (typeof successCallback != "function") {
+        console.log("MaeRfid.requestPermission failure: success callback parameter must be a function");
+        return;
+    }
+
+    exec(successCallback, errorCallback, 'MaeRfid', 'requestPermission', options);
+};
+
+var maeRfid = new MaeRfid();
+module.exports = maeRfid;
