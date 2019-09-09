@@ -5,7 +5,7 @@
  */
 
 
-var exec = cordova.require("cordova/exec");
+//var exec = cordova.require("cordova/exec");
 
 
 
@@ -31,7 +31,7 @@ var maerfid = {
             return;
         }
     
-        exec(successCallback, errorCallback, 'MaeRfid', 'requestPermission', [{'opts': opts}]);
+        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'requestPermission', [{'opts': opts}]);
     }
 }
 
