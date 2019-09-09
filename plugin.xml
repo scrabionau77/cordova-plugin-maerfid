@@ -10,7 +10,7 @@
     <engine name="cordova-android" version=">=6.3.0"/>
   </engines>
   <js-module src="www/maerfid.js" name="MaeRfid">
-    <clobbers target="cordova.plugins.maerfid"/>
+    <clobbers target="window.maerfid"/>
   </js-module>
   <platform name="android">
     <source-file src="src/android/com/cordova/plugins/maerfid/MaeRfid.java" target-dir="src/com/cordova/plugins/maerfid"/>
