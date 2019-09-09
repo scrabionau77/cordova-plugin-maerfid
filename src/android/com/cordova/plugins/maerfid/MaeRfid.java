@@ -12,49 +12,44 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.Application;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.PluginResult;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
+import com.hoho.android.usbserial.driver.Ch34xSerialDriver;
+import com.hoho.android.usbserial.driver.Cp21xxSerialDriver;
+import com.hoho.android.usbserial.driver.FtdiSerialDriver;
+import com.hoho.android.usbserial.driver.ProbeTable;
+import com.hoho.android.usbserial.driver.ProlificSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialPort;
+import com.hoho.android.usbserial.driver.UsbSerialProber;
+import com.hoho.android.usbserial.util.SerialInputOutputManager;
+
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.usb.UsbManager;
-import android.os.Bundle;
-import android.util.Log;
-import android.content.pm.PackageManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-
-import android.hardware.usb.UsbConstants;
+import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.hardware.usb.UsbRequest;
+import android.util.Base64;
+import android.util.Log;
+import android.app.Activity;
+import android.os.Bundle;
+import android.content.pm.PackageManager;
 
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.PluginResult;
-//import org.apache.cordova.PermissionHelper;
-//import java.security.Permission;
 
-import com.caen.RFIDLibrary.*;
-import com.caen.VCPSerialPort.VCPSerialPort;
-//import com.maestrale.rfid.Global;
-
-import java.util.List;
-
-/*
-import com.google.zxing.client.android.CaptureActivity;
-import com.google.zxing.client.android.encode.EncodeActivity;
-import com.google.zxing.client.android.Intents;
-*/
-
-/**
- * This calls out to the ZXing barcode reader and returns the result.
- *
- * @sa https://github.com/apache/cordova-android/blob/master/framework/src/org/apache/cordova/CordovaPlugin.java
- */
 
 
 public class MaeRfid extends CordovaPlugin {
@@ -82,13 +77,14 @@ public class MaeRfid extends CordovaPlugin {
     private static final String PHONE_TYPE = "PHONE_TYPE";
     private static final String SMS_TYPE = "SMS_TYPE";
 
-    private static final String LOG_TAG = "MaeRfid";
-    private static final String COM_PORT = "COM1";
-    private static final String ACTION_USB_PERMISSION = LOG_TAG + ".USB_PERMISSION";
+    private static final String TAG = "MaeRfid";
 
-    private UsbManager mUsbManager;
-    private PendingIntent mPermissionIntent;
-    private BroadcastReceiver mUsbReceiver;
+    // NUOVA IMPLEMENTAZIONE
+    // UsbManager instance to deal with permission and opening
+    private UsbManager manager;
+    // The current driver that handle the serial port
+    private UsbSerialDriver driver;
+
 
     private JSONArray requestArgs;
     private CallbackContext callbackContext;
@@ -121,94 +117,95 @@ public class MaeRfid extends CordovaPlugin {
      * 
      */
     @Override
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         this.callbackContext = callbackContext;
         this.requestArgs = args;
 
-        if (mUsbManager == null) {
-            mUsbManager = (UsbManager) webView.getContext().getSystemService(Context.USB_SERVICE);
-            mPermissionIntent = PendingIntent.getBroadcast(webView.getContext(), 0, new Intent(ACTION_USB_PERMISSION), 0);
-        }
+        Log.d(TAG, "Action: " + action);
+        JSONObject arg_object = args.optJSONObject(0);
 
-        
-
-        if (action.equals(ENCODE)) {
-            JSONObject obj = args.optJSONObject(0);
-            if (obj != null) {
-                String type = obj.optString(TYPE);
-                String data = obj.optString(DATA);
-
-                // If the type is null then force the type to text
-                if (type == null) {
-                    type = TEXT_TYPE;
-                }
-
-                if (data == null) {
-                    callbackContext.error("User did not specify data to encode");
-                    return true;
-                }
-
-                //encode(type, data);
-            } else {
-                callbackContext.error("User did not specify data to encode");
-                return true;
-            }
-        } else if (action.equals(SCAN)) {
-
-            //android permission auto add
-            /*
-            if(!hasPermisssion()) {
-              requestPermissions(0);
-            } else {
-              //scan(args);
-            }
-            */
-        } else if (action.equals("connect")) {
-            
-            JSONObject obj = args.optJSONObject(0);
-            /*
-            if (obj != null) {
-                String port = obj.optString("Port");
-                COM_PORT = port;
-            } else {
-                COM_PORT = "COM1";
-            }
-            */
-
-            // Execute in another thread to avoid blocking
-            cordova.getThreadPool().execute(new Runnable() {
-                public void run() {
-                    // Qui va chiamata la libreria android CAEN RFID
-                    CAENRFIDReader reader = new CAENRFIDReader();
-
-                    try {
-
-                        // Execute success callback
-                        //reader.Connect(CAENRFIDPort.CAENRFID_RS232, "");
-                        
-                        Context context = Global.getAppContext();
-
-                        //UsbManager manager = (UsbManager) context.getSystemService(context.USB_SERVICE);
-                        List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(context );
-                        if(!ports.isEmpty()) {
-                            reader.Connect(ports.get(0));
-                        }
-                        else
-                        {
-                            callbackContext.error("Reader non collegato!");
-                        }
-
-
-                        callbackContext.success("qualcosa");
-                    } catch (CAENRFIDException e) {
-                        callbackContext.error(e.toString()); // Execute error callback
-                    }
-                }
-            });
+        if(action.equals("permission")){
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            requestPermission(opts, callbackContext);
         } else {
             return false;
         }
         return true;
+    }
+
+
+
+
+    /**
+     * RICHIESTA PERMESSI CONNESSIONE USB
+     */
+    private void requestPermission(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                // get UsbManager from Android
+                manager = (UsbManager) cordova.getActivity().getSystemService(Context.USB_SERVICE);
+                UsbSerialProber prober;
+
+                if (opts.has("vid") && opts.has("pid")) {
+                    ProbeTable customTable = new ProbeTable();
+                    Object o_vid = opts.opt("vid"); //can be an integer Number or a hex String
+                    Object o_pid = opts.opt("pid"); //can be an integer Number or a hex String
+                    int vid = o_vid instanceof Number ? ((Number) o_vid).intValue() : Integer.parseInt((String) o_vid,16);
+                    int pid = o_pid instanceof Number ? ((Number) o_pid).intValue() : Integer.parseInt((String) o_pid,16);
+                    String driver = opts.has("driver") ? (String) opts.opt("driver") : "CdcAcmSerialDriver";
+
+                    if (driver.equals("FtdiSerialDriver")) {
+                        customTable.addProduct(vid, pid, FtdiSerialDriver.class);
+                    }
+                    else if (driver.equals("CdcAcmSerialDriver")) {
+                        customTable.addProduct(vid, pid, CdcAcmSerialDriver.class);
+                    }
+                    else if (driver.equals("Cp21xxSerialDriver")) {
+                        customTable.addProduct(vid, pid, Cp21xxSerialDriver.class);
+                    }
+                    else if (driver.equals("ProlificSerialDriver")) {
+                        customTable.addProduct(vid, pid, ProlificSerialDriver.class);
+                    }
+                    else if (driver.equals("Ch34xSerialDriver")) {
+                        customTable.addProduct(vid, pid, Ch34xSerialDriver.class);
+                    }
+                    else {
+                        Log.d(TAG, "Unknown driver!");
+                        callbackContext.error("Unknown driver!");
+                    }
+
+                    prober = new UsbSerialProber(customTable);
+
+                }
+                else {
+                    // find all available drivers from attached devices.
+                    prober = UsbSerialProber.getDefaultProber();
+                }
+
+                List<UsbSerialDriver> availableDrivers = prober.findAllDrivers(manager);
+
+                if (!availableDrivers.isEmpty()) {
+                    // get the first one as there is a high chance that there is no more than one usb device attached to your android
+                    driver = availableDrivers.get(0);
+                    UsbDevice device = driver.getDevice();
+                    // create the intent that will be used to get the permission
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(cordova.getActivity(), 0, new Intent(UsbBroadcastReceiver2.USB_PERMISSION), 0);
+                    // and a filter on the permission we ask
+                    IntentFilter filter = new IntentFilter();
+                    filter.addAction(UsbBroadcastReceiver2.USB_PERMISSION);
+                    // this broadcast receiver will handle the permission results
+                    UsbBroadcastReceiver2 usbReceiver = new UsbBroadcastReceiver2(callbackContext, cordova.getActivity());
+                    cordova.getActivity().registerReceiver(usbReceiver, filter);
+                    // finally ask for the permission
+                    manager.requestPermission(device, pendingIntent);
+                }
+                else {
+                    // no available drivers
+                    Log.d(TAG, "No device found!");
+                    callbackContext.error("No device found!");
+                }
+            }
+        });
     }
 
     /**
@@ -309,7 +306,7 @@ public class MaeRfid extends CordovaPlugin {
                     obj.put(FORMAT, intent.getStringExtra("SCAN_RESULT_FORMAT"));
                     obj.put(CANCELLED, false);
                 } catch (JSONException e) {
-                    Log.d(LOG_TAG, "This should never happen");
+                    Log.d(TAG, "This should never happen");
                 }
                 //this.success(new PluginResult(PluginResult.Status.OK, obj), this.callback);
                 this.callbackContext.success(obj);
@@ -320,7 +317,7 @@ public class MaeRfid extends CordovaPlugin {
                     obj.put(FORMAT, "");
                     obj.put(CANCELLED, true);
                 } catch (JSONException e) {
-                    Log.d(LOG_TAG, "This should never happen");
+                    Log.d(TAG, "This should never happen");
                 }
                 //this.success(new PluginResult(PluginResult.Status.OK, obj), this.callback);
                 this.callbackContext.success(obj);
@@ -389,7 +386,7 @@ public class MaeRfid extends CordovaPlugin {
        PluginResult result;
        for (int r : grantResults) {
            if (r == PackageManager.PERMISSION_DENIED) {
-               Log.d(LOG_TAG, "Permission Denied!");
+               Log.d(TAG, "Permission Denied!");
                result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
                this.callbackContext.sendPluginResult(result);
                return;
