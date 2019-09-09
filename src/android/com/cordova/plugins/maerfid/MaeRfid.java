@@ -124,7 +124,7 @@ public class MaeRfid extends CordovaPlugin {
         Log.d(TAG, "Action: " + action);
         JSONObject arg_object = args.optJSONObject(0);
 
-        if(action.equals("permission")){
+        if(action.equals("requestPermission")){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             requestPermission(opts, callbackContext);
         } else {
