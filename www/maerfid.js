@@ -48,7 +48,7 @@ MaeRfid.prototype.requestPermission = function (opts, successCallback, errorCall
 };
 
 
-var MaeRfid2 = {
+var maerfid = {
     requestPermission: function (opts, successCallback, errorCallback) {
         if (typeof opts === 'function') {  //user did not pass opts
             errorCallback = successCallback;
@@ -76,4 +76,4 @@ var MaeRfid2 = {
 
 //var maeRfid = new MaeRfid();
 //module.exports = maeRfid;
-module.exports = MaeRfid2;
+module.exports = maerfid;
