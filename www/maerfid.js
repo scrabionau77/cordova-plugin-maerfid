@@ -151,7 +151,7 @@ MaeRfid.prototype.connect = function (successCallback, errorCallback, options) {
 
 
 //-------------------------------------------------------------------
-MaeRfid.prototype.requestPermission = function (successCallback, errorCallback, options) {
+MaeRfid.prototype.requestPermission = function (options, successCallback, errorCallback) {
     if (errorCallback == null) {
         errorCallback = function () {
         };
