@@ -29,18 +29,17 @@ var maerfid = {
     
         cordova.exec(successCallback, errorCallback, 'MaeRfid', 'requestPermission', [{'opts': opts}]);
     },
-
     openSerial: function (opts, successCallback, errorCallback) {
+        if (errorCallback == null) {
+            errorCallback = function () {
+            };
+        }
         if (typeof opts === 'function') {  //user did not pass opts
             errorCallback = successCallback;
             successCallback = opts;
             opts = {};
         }
-        if (errorCallback == null) {
-            errorCallback = function () {
-            };
-        }
-    
+        
         if (typeof errorCallback != "function") {
             console.log("MaeRfid.openSerial failure: error callback parameter not a function");
             return;

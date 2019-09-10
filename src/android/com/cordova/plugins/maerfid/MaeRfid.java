@@ -203,34 +203,38 @@ public class MaeRfid extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
 
-                UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
-                if (connection != null) {
+                /*UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+                if (connection != null) {*/
                     // get first port and open it
-                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(Global.getAppContext());
-                    VCPSerialPort port = ports.get(0);
-                    CAENRFIDReader reader = new CAENRFIDReader();
+
 
                     try {
+                        List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(Global.getAppContext());
+
+                        VCPSerialPort port = ports.get(0);
+                        CAENRFIDReader reader = new CAENRFIDReader();
+
                         reader.Connect(port);
                         CAENRFIDLogicalSource mySource = reader.GetSource("Source_0");
+                        //mySource.addCAENRFIDEventListener();
+
                         CAENRFIDTag[] myTags = mySource.InventoryTag();
 
                         PluginResult.Status status = PluginResult.Status.OK;
 
                         if(myTags.length > 0){
-                            /*for(int i = 0; i < myTags.length; i++){
-
-                            }*/
-
                             final byte[] data = new byte[myTags.length];
                             callbackContext.sendPluginResult(new PluginResult(status,data));
                         } else {
                             final byte[] data = new byte[0];
                             callbackContext.sendPluginResult(new PluginResult(status, data));
                         }
-                    } catch (CAENRFIDException e){
+
+                    } /*catch (CAENRFIDException e){
                         Log.d(TAG, e.getMessage());
                         callbackContext.error(e.getMessage());
+                    }*/ catch (Exception ex){
+                        callbackContext.error(ex.getMessage());
                     }
 
 
@@ -265,11 +269,11 @@ public class MaeRfid extends CordovaPlugin {
 
                     Log.d(TAG, "Serial port opened!");
                     callbackContext.success("Serial port opened!");
-                }
+                /*}
                 else {
                     Log.d(TAG, "Cannot connect to the device!");
                     callbackContext.error("Cannot connect to the device!");
-                }
+                }*/
                 //onDeviceStateChange();
             }
         });
