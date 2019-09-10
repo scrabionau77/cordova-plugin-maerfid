@@ -54,6 +54,7 @@ import com.caen.VCPSerialPort.VCPSerialPort;
 
 
 
+
 public class MaeRfid extends CordovaPlugin {
     
     public static final int REQUEST_CODE = 0x0ba7c;
@@ -66,6 +67,7 @@ public class MaeRfid extends CordovaPlugin {
 
     // actions definitions
     private static final String ACTION_REQUEST_PERMISSION = "requestPermission";
+    private static final String ACTION_OPEN = "openSerial";
     
     
 
@@ -74,6 +76,8 @@ public class MaeRfid extends CordovaPlugin {
     private UsbManager manager;
     // The current driver that handle the serial port
     private UsbSerialDriver driver;
+    // The serial port that will be used in this plugin
+    private UsbSerialPort port;
 
     private JSONArray requestArgs;
     private CallbackContext callbackContext;
@@ -105,6 +109,9 @@ public class MaeRfid extends CordovaPlugin {
         if(ACTION_REQUEST_PERMISSION.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             requestPermission(opts, callbackContext);
+        } else if(ACTION_OPEN.equals(action)){
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            openSerial(opts, callbackContext);
         } else {
             return false;
         }
@@ -186,7 +193,113 @@ public class MaeRfid extends CordovaPlugin {
         });
     }
 
-    
+
+
+
+    /**
+     * APERTURA CONNESSIONE PORTA
+     */
+    private void openSerial(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+
+                UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
+                if (connection != null) {
+                    // get first port and open it
+                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(Global.getAppContext());
+                    VCPSerialPort port = ports.get(0);
+                    CAENRFIDReader reader = new CAENRFIDReader();
+
+                    try {
+                        reader.Connect(port);
+                        CAENRFIDLogicalSource mySource = reader.GetSource("Source_0");
+                        CAENRFIDTag[] myTags = mySource.InventoryTag();
+
+                        PluginResult.Status status = PluginResult.Status.OK;
+
+                        if(myTags.length > 0){
+                            /*for(int i = 0; i < myTags.length; i++){
+
+                            }*/
+
+                            final byte[] data = new byte[myTags.length];
+                            callbackContext.sendPluginResult(new PluginResult(status,data));
+                        } else {
+                            final byte[] data = new byte[0];
+                            callbackContext.sendPluginResult(new PluginResult(status, data));
+                        }
+                    } catch (CAENRFIDException e){
+                        Log.d(TAG, e.getMessage());
+                        callbackContext.error(e.getMessage());
+                    }
+
+
+
+                    /*
+                    try {
+                        // get connection params or the default values
+                        baudRate = opts.has("baudRate") ? opts.getInt("baudRate") : 9600;
+                        dataBits = opts.has("dataBits") ? opts.getInt("dataBits") : UsbSerialPort.DATABITS_8;
+                        stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
+                        parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
+                        setDTR = opts.has("dtr") && opts.getBoolean("dtr");
+                        setRTS = opts.has("rts") && opts.getBoolean("rts");
+                        // Sleep On Pause defaults to true
+                        sleepOnPause = opts.has("sleepOnPause") ? opts.getBoolean("sleepOnPause") : true;
+
+                        port.open(connection);
+                        port.setParameters(baudRate, dataBits, stopBits, parity);
+                        if (setDTR) port.setDTR(true);
+                        if (setRTS) port.setRTS(true);
+                    }
+                    catch (IOException  e) {
+                        // deal with error
+                        Log.d(TAG, e.getMessage());
+                        callbackContext.error(e.getMessage());
+                    }
+                    catch (JSONException e) {
+                        // deal with error
+                        Log.d(TAG, e.getMessage());
+                        callbackContext.error(e.getMessage());
+                    }*/
+
+                    Log.d(TAG, "Serial port opened!");
+                    callbackContext.success("Serial port opened!");
+                }
+                else {
+                    Log.d(TAG, "Cannot connect to the device!");
+                    callbackContext.error("Cannot connect to the device!");
+                }
+                //onDeviceStateChange();
+            }
+        });
+    }
+
+
+
+
+    /**
+     * Convert a given string of hexadecimal numbers
+     * into a byte[] array where every 2 hex chars get packed into
+     * a single byte.
+     *
+     * E.g. "ffaa55" results in a 3 byte long byte array
+     *
+     * @param s
+     * @return
+     */
+    private byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
+    }
+
+
+
 
     /**
      * Called when the barcode scanner intent completes.
