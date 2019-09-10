@@ -1,7 +1,8 @@
 /**
  * MAE CAEN PLUGIN
  * 
- * Copyright (c) 209, Daniele Pellerucci @ Maestrale Information Technology
+ * Copyright (c) 2019, Daniele Pellerucci @ Maestrale Information Technology
+ * www.maestrale.it
  */
 
 var maerfid = {

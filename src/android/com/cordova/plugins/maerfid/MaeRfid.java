@@ -2,9 +2,8 @@
  * PhoneGap is available under *either* the terms of the modified BSD license *or* the
  * MIT License (2008). See http://opensource.org/licenses/alphabetical for full text.
  *
- * Copyright (c) Matt Kane 2010
- * Copyright (c) 2011, IBM Corporation
- * Copyright (c) 2013, Maciej Nux Jaros
+ * Copyright (c) 2019, Daniele Pellerucci @ Maestrale Information Technology
+ * www.maestrale.it
  */
 package com.cordova.plugins.maerfid;
 
@@ -56,38 +55,25 @@ import com.caen.VCPSerialPort.VCPSerialPort;
 
 
 public class MaeRfid extends CordovaPlugin {
+    
     public static final int REQUEST_CODE = 0x0ba7c;
-
-    private static final String SCAN = "scan";
-    private static final String ENCODE = "encode";
     private static final String CANCELLED = "cancelled";
     private static final String FORMAT = "format";
     private static final String TEXT = "text";
-    private static final String DATA = "data";
-    private static final String TYPE = "type";
-    private static final String PREFER_FRONTCAMERA = "preferFrontCamera";
-    private static final String ORIENTATION = "orientation";
-    private static final String SHOW_FLIP_CAMERA_BUTTON = "showFlipCameraButton";
-    private static final String RESULTDISPLAY_DURATION = "resultDisplayDuration";
-    private static final String SHOW_TORCH_BUTTON = "showTorchButton";
-    private static final String TORCH_ON = "torchOn";
-    private static final String SAVE_HISTORY = "saveHistory";
-    private static final String DISABLE_BEEP = "disableSuccessBeep";
-    private static final String FORMATS = "formats";
-    private static final String PROMPT = "prompt";
-    private static final String TEXT_TYPE = "TEXT_TYPE";
-    private static final String EMAIL_TYPE = "EMAIL_TYPE";
-    private static final String PHONE_TYPE = "PHONE_TYPE";
-    private static final String SMS_TYPE = "SMS_TYPE";
+
 
     private static final String TAG = "MaeRfid";
+
+    // actions definitions
+    private static final String ACTION_REQUEST_PERMISSION = "requestPermission";
+    
+    
 
     // NUOVA IMPLEMENTAZIONE
     // UsbManager instance to deal with permission and opening
     private UsbManager manager;
     // The current driver that handle the serial port
     private UsbSerialDriver driver;
-
 
     private JSONArray requestArgs;
     private CallbackContext callbackContext;
@@ -97,7 +83,6 @@ public class MaeRfid extends CordovaPlugin {
      * Constructor.
      */
     public MaeRfid() {
-
     }
 
 
@@ -105,26 +90,19 @@ public class MaeRfid extends CordovaPlugin {
 
 
     /**
-     * Executes the request.
-     *
-     * This method is called from the WebView thread. To do a non-trivial amount of work, use:
-     *     cordova.getThreadPool().execute(runnable);
-     *
-     * To run on the UI thread, use:
-     *     cordova.getActivity().runOnUiThread(runnable);
-     *
-     * @param action          The action to execute.
-     * @param args            The exec() arguments.
-     * @param callbackContext The callback context used when calling back into JavaScript.
-     * @return                Whether the action was valid.
-     * 
-     */
+	 * Overridden execute method
+	 * @param action the string representation of the action to execute
+	 * @param args
+	 * @param callbackContext the cordova {@link CallbackContext}
+	 * @return true if the action exists, false otherwise
+	 * @throws JSONException if the args parsing fails
+	 */
     @Override
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
         Log.d(TAG, "Action: " + action);
         JSONObject arg_object = args.optJSONObject(0);
 
-        if(action.equals("requestPermission")){
+        if(ACTION_REQUEST_PERMISSION.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             requestPermission(opts, callbackContext);
         } else {
@@ -208,85 +186,7 @@ public class MaeRfid extends CordovaPlugin {
         });
     }
 
-    /**
-     * Starts an intent to scan and decode a barcode.
-     */
-    /*
-    public void scan(final JSONArray args) {
-
-        final CordovaPlugin that = this;
-
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-
-                Intent intentScan = new Intent(that.cordova.getActivity().getBaseContext(), CaptureActivity.class);
-                intentScan.setAction(Intents.Scan.ACTION);
-                intentScan.addCategory(Intent.CATEGORY_DEFAULT);
-
-                // add config as intent extras
-                if (args.length() > 0) {
-
-                    JSONObject obj;
-                    JSONArray names;
-                    String key;
-                    Object value;
-
-                    for (int i = 0; i < args.length(); i++) {
-
-                        try {
-                            obj = args.getJSONObject(i);
-                        } catch (JSONException e) {
-                            Log.i("CordovaLog", e.getLocalizedMessage());
-                            continue;
-                        }
-
-                        names = obj.names();
-                        for (int j = 0; j < names.length(); j++) {
-                            try {
-                                key = names.getString(j);
-                                value = obj.get(key);
-
-                                if (value instanceof Integer) {
-                                    intentScan.putExtra(key, (Integer) value);
-                                } else if (value instanceof String) {
-                                    intentScan.putExtra(key, (String) value);
-                                }
-
-                            } catch (JSONException e) {
-                                Log.i("CordovaLog", e.getLocalizedMessage());
-                            }
-                        }
-
-                        intentScan.putExtra(Intents.Scan.CAMERA_ID, obj.optBoolean(PREFER_FRONTCAMERA, false) ? 1 : 0);
-                        intentScan.putExtra(Intents.Scan.SHOW_FLIP_CAMERA_BUTTON, obj.optBoolean(SHOW_FLIP_CAMERA_BUTTON, false));
-                        intentScan.putExtra(Intents.Scan.SHOW_TORCH_BUTTON, obj.optBoolean(SHOW_TORCH_BUTTON, false));
-                        intentScan.putExtra(Intents.Scan.TORCH_ON, obj.optBoolean(TORCH_ON, false));
-                        intentScan.putExtra(Intents.Scan.SAVE_HISTORY, obj.optBoolean(SAVE_HISTORY, false));
-                        boolean beep = obj.optBoolean(DISABLE_BEEP, false);
-                        intentScan.putExtra(Intents.Scan.BEEP_ON_SCAN, !beep);
-                        if (obj.has(RESULTDISPLAY_DURATION)) {
-                            intentScan.putExtra(Intents.Scan.RESULT_DISPLAY_DURATION_MS, "" + obj.optLong(RESULTDISPLAY_DURATION));
-                        }
-                        if (obj.has(FORMATS)) {
-                            intentScan.putExtra(Intents.Scan.FORMATS, obj.optString(FORMATS));
-                        }
-                        if (obj.has(PROMPT)) {
-                            intentScan.putExtra(Intents.Scan.PROMPT_MESSAGE, obj.optString(PROMPT));
-                        }
-                        if (obj.has(ORIENTATION)) {
-                            intentScan.putExtra(Intents.Scan.ORIENTATION_LOCK, obj.optString(ORIENTATION));
-                        }
-                    }
-
-                }
-
-                // avoid calling other phonegap apps
-                intentScan.setPackage(that.cordova.getActivity().getApplicationContext().getPackageName());
-
-                that.cordova.startActivityForResult(that, intentScan, REQUEST_CODE);
-            }
-        });
-    }*/
+    
 
     /**
      * Called when the barcode scanner intent completes.
@@ -328,86 +228,6 @@ public class MaeRfid extends CordovaPlugin {
         }
     }
 
-    /**
-     * Initiates a barcode encode.
-     *
-     * @param type Endoiding type.
-     * @param data The data to encode in the bar code.
-     */
-    /*
-    public void encode(String type, String data) {
-        Intent intentEncode = new Intent(this.cordova.getActivity().getBaseContext(), EncodeActivity.class);
-        intentEncode.setAction(Intents.Encode.ACTION);
-        intentEncode.putExtra(Intents.Encode.TYPE, type);
-        intentEncode.putExtra(Intents.Encode.DATA, data);
-        // avoid calling other phonegap apps
-        intentEncode.setPackage(this.cordova.getActivity().getApplicationContext().getPackageName());
 
-        this.cordova.getActivity().startActivity(intentEncode);
-    }
-    */
-
-    /**
-     * check application's permissions
-     */
-   public boolean hasPermisssion() {
-       /*for(String p : permissions)
-       {
-           if(!PermissionHelper.hasPermission(this, p))
-           {
-               return false;
-           }
-       }
-       */
-       return true;
-   }
-
-    /**
-     * We override this so that we can access the permissions variable, which no longer exists in
-     * the parent class, since we can't initialize it reliably in the constructor!
-     *
-     * @param requestCode The code to get request action
-     */
-   public void requestPermissions(int requestCode)
-   {
-       //PermissionHelper.requestPermissions(this, requestCode, permissions);
-   }
-
-   /**
-   * processes the result of permission request
-   *
-   * @param requestCode The code to get request action
-   * @param permissions The collection of permissions
-   * @param grantResults The result of grant
-   */
-  public void onRequestPermissionResult(int requestCode, String[] permissions,
-                                         int[] grantResults) throws JSONException
-   {
-       PluginResult result;
-       for (int r : grantResults) {
-           if (r == PackageManager.PERMISSION_DENIED) {
-               Log.d(TAG, "Permission Denied!");
-               result = new PluginResult(PluginResult.Status.ILLEGAL_ACCESS_EXCEPTION);
-               this.callbackContext.sendPluginResult(result);
-               return;
-           }
-       }
-
-       switch(requestCode)
-       {
-           case 0:
-               //scan(this.requestArgs);
-               break;
-       }
-   }
-
-    /**
-     * This plugin launches an external Activity when the camera is opened, so we
-     * need to implement the save/restore API in case the Activity gets killed
-     * by the OS while it's in the background.
-     */
-    public void onRestoreStateForActivityResult(Bundle state, CallbackContext callbackContext) {
-        this.callbackContext = callbackContext;
-    }
 
 }
