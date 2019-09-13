@@ -14,7 +14,6 @@
   </js-module>
   <platform name="android">
     <source-file src="src/android/com/cordova/plugins/maerfid/MaeRfid.java" target-dir="src/com/cordova/plugins/maerfid"/>
-    <source-file src="src/android/com/cordova/plugins/maerfid/Global.java" target-dir="src/com/cordova/plugins/maerfid"/>
     <source-file src="src/android/com/cordova/plugins/maerfid/UsbBroadcastReceiver2.java" target-dir="src/com/cordova/plugins/maerfid"/>
     <config-file target="res/xml/config.xml" parent="/*">
       <feature name="MaeRfid">
