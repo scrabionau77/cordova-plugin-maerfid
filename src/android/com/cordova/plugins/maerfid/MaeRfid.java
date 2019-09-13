@@ -209,7 +209,7 @@ public class MaeRfid extends CordovaPlugin {
 
 
                     try {
-                        List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(Global.getAppContext());
+                        List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext()); // Global.getAppContext()
 
                         VCPSerialPort port = ports.get(0);
                         CAENRFIDReader reader = new CAENRFIDReader();
@@ -219,15 +219,18 @@ public class MaeRfid extends CordovaPlugin {
                         //mySource.addCAENRFIDEventListener();
 
                         CAENRFIDTag[] myTags = mySource.InventoryTag();
+                        reader.Disconnect();
 
                         PluginResult.Status status = PluginResult.Status.OK;
 
                         if(myTags.length > 0){
                             final byte[] data = new byte[myTags.length];
-                            callbackContext.sendPluginResult(new PluginResult(status,data));
+                            callbackContext.success("Ci sono tag: " + myTags.length);
+                            //callbackContext.sendPluginResult(new PluginResult(status,data));
                         } else {
                             final byte[] data = new byte[0];
-                            callbackContext.sendPluginResult(new PluginResult(status, data));
+                            callbackContext.success("NON Ci sono tag");
+                            //callbackContext.sendPluginResult(new PluginResult(status, data));
                         }
 
                     } /*catch (CAENRFIDException e){
