@@ -224,8 +224,16 @@ public class MaeRfid extends CordovaPlugin {
                         PluginResult.Status status = PluginResult.Status.OK;
 
                         if(myTags.length > 0){
+                            String list = "";
+
+                            for (int x= 0; x< myTags.length; x++) {
+                                CAENRFIDTag tag = myTags[x];
+                                list += " - " + bytesToHex(tag.GetId());
+                            }
+
+
                             final byte[] data = new byte[myTags.length];
-                            callbackContext.success("Ci sono tag: " + myTags.length);
+                            callbackContext.success("Ci sono tag: " + list ); // + myTags.length);
                             //callbackContext.sendPluginResult(new PluginResult(status,data));
                         } else {
                             final byte[] data = new byte[0];
@@ -281,6 +289,22 @@ public class MaeRfid extends CordovaPlugin {
             }
         });
     }
+
+
+
+
+
+    private static String bytesToHex(byte[] hashInBytes) {
+
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hashInBytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+
+    }
+
+
 
 
 
