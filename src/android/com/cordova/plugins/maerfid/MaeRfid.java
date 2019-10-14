@@ -12,8 +12,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -48,10 +58,11 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.content.pm.PackageManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.caen.RFIDLibrary.*;
 import com.caen.VCPSerialPort.VCPSerialPort;
-
-
 
 
 
@@ -215,7 +226,8 @@ public class MaeRfid extends CordovaPlugin {
                         CAENRFIDReader reader = new CAENRFIDReader();
 
                         reader.Connect(port);
-                        CAENRFIDLogicalSource mySource = reader.GetSource("Source_0");
+
+                        CAENRFIDLogicalSource mySource = reader.GetSource("Source_1");
                         //mySource.addCAENRFIDEventListener();
 
                         CAENRFIDTag[] myTags = mySource.InventoryTag();
@@ -223,21 +235,42 @@ public class MaeRfid extends CordovaPlugin {
 
                         PluginResult.Status status = PluginResult.Status.OK;
 
-                        if(myTags.length > 0){
+                        if(myTags != null && myTags.length > 0){
                             String list = "";
+
+                            org.json.JSONObject JsonOut = new org.json.JSONObject();
+
+
 
                             for (int x= 0; x< myTags.length; x++) {
                                 CAENRFIDTag tag = myTags[x];
-                                list += " - " + bytesToHex(tag.GetId());
+
+                                org.json.JSONObject obj = new org.json.JSONObject();
+                                obj.put("Antenna", tag.GetAntenna());
+                                obj.put("Id", bytesToHex(tag.GetId()));
+                                obj.put("Length", tag.GetLength());
+                                obj.put("RSSI", tag.GetRSSI());
+                                obj.put("TID", tag.GetTID());
+                                obj.put("TimeStamp", tag.GetTimeStamp());
+
+                                JsonOut.put("tag_"+x, obj);
                             }
 
-
-                            final byte[] data = new byte[myTags.length];
-                            callbackContext.success("Ci sono tag: " + list ); // + myTags.length);
+                            //final byte[] data = new byte[myTags.length];
+                            //callbackContext.success(ListArr.); // + myTags.length);
                             //callbackContext.sendPluginResult(new PluginResult(status,data));
+
+                            PluginResult result = new PluginResult(PluginResult.Status.OK, JsonOut.toString()); // ListArr.toString()
+                            callbackContext.sendPluginResult(result);
+
+
                         } else {
                             final byte[] data = new byte[0];
-                            callbackContext.success("NON Ci sono tag");
+
+                            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT, data);
+
+
+                            //callbackContext.success("NON Ci sono tag");
                             //callbackContext.sendPluginResult(new PluginResult(status, data));
                         }
 
@@ -303,8 +336,6 @@ public class MaeRfid extends CordovaPlugin {
         return sb.toString();
 
     }
-
-
 
 
 
