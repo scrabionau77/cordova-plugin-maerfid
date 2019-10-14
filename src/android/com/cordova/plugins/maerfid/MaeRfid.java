@@ -77,8 +77,10 @@ public class MaeRfid extends CordovaPlugin {
     private static final String TAG = "MaeRfid";
 
     // actions definitions
+    private static final String ACTION_CONFIG = "configCaen";
     private static final String ACTION_REQUEST_PERMISSION = "requestPermission";
     private static final String ACTION_OPEN = "openSerial";
+    private static final String ACTION_READ_GPIO = "readGpio";
     
     
 
@@ -117,17 +119,103 @@ public class MaeRfid extends CordovaPlugin {
         Log.d(TAG, "Action: " + action);
         JSONObject arg_object = args.optJSONObject(0);
 
-        if(ACTION_REQUEST_PERMISSION.equals(action)){
+        if(ACTION_CONFIG.equals(action)){
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            configCaen(opts, callbackContext);
+        } else if(ACTION_REQUEST_PERMISSION.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             requestPermission(opts, callbackContext);
         } else if(ACTION_OPEN.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             openSerial(opts, callbackContext);
+        } else if(ACTION_READ_GPIO.equals(action)){
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            readGpio(opts, callbackContext);
         } else {
             return false;
         }
         return true;
     }
+
+
+
+
+
+
+    /**
+     * CONFIGURAZIONE DISPOSITIVO CAEN
+     */
+    private void configCaen(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+
+                int GpioConfig = 0x0; // 0 = INPUT, 1 = OUTPUT
+                int OutputVal = 0xf;
+
+                if (opts.has("gpioConfig")) {
+                    Object o_gpio = opts.opt("gpioConfig"); //can be an integer Number or a hex String
+                    GpioConfig = o_gpio instanceof Number ? ((Number) o_gpio).intValue() : Integer.parseInt((String) o_gpio, 16);
+                }
+
+                if (opts.has("outputVal")) {
+                    Object o_ov = opts.opt("outputVal"); //can be an integer Number or a hex String
+                    OutputVal = o_ov instanceof Number ? ((Number) o_ov).intValue() : Integer.parseInt((String) o_ov, 16);
+                }
+
+                try {
+                    Log.d(TAG, "Avvio il settaggio del CAEN!");
+                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext());
+                    VCPSerialPort port = ports.get(0);
+                    CAENRFIDReader reader = new CAENRFIDReader();
+                    reader.Connect(port);
+
+                    // Definisco quali GPIO sono di ingresso e quali di uscita
+                    reader.SetIODIRECTION(GpioConfig);
+
+                    // Definisco il livello logico per i pin di uscita
+                    reader.SetIO(OutputVal);
+
+                    int InputVal = 0x0;
+                    InputVal = reader.GetIO();
+
+                } catch (Exception ex){
+                    callbackContext.error(ex.getMessage());
+                }
+            }
+        });
+    }
+
+
+
+
+    /**
+     * LETTURA STATO GPIO
+     */
+    private void readGpio(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+
+                try {
+                    Log.d(TAG, "Avvio la lettura delle GPIO!");
+                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext());
+                    VCPSerialPort port = ports.get(0);
+                    CAENRFIDReader reader = new CAENRFIDReader();
+                    reader.Connect(port);
+
+                    // Leggo il valore dei GPIO
+                    int InputVal = 0x0;
+                    InputVal = reader.GetIO();
+
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, InputVal); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+
+                } catch (Exception ex){
+                    callbackContext.error(ex.getMessage());
+                }
+            }
+        });
+    }
+
 
 
 
@@ -214,115 +302,111 @@ public class MaeRfid extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
 
-                /*UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
-                if (connection != null) {*/
-                    // get first port and open it
+                int src = 0;
+                if (opts.has("source")) {
+                    Object o_src = opts.opt("source"); //can be an integer Number or a hex String
+                    src = o_src instanceof Number ? ((Number) o_src).intValue() : Integer.parseInt((String) o_src, 16);
+
+                    if(src < 0 || src > 3){
+                        src = 0;
+                    }
+                }
+
+                String caen_src = "Source_" + src; // ex: Source_0 for antenna 0
 
 
-                    try {
-                        List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext()); // Global.getAppContext()
+                try {
+                    Log.d(TAG, "Avvio apertura porta seriale!");
+                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext()); // Global.getAppContext()
 
-                        VCPSerialPort port = ports.get(0);
-                        CAENRFIDReader reader = new CAENRFIDReader();
+                    VCPSerialPort port = ports.get(0);
+                    CAENRFIDReader reader = new CAENRFIDReader();
 
-                        reader.Connect(port);
+                    reader.Connect(port);
 
-                        CAENRFIDLogicalSource mySource = reader.GetSource("Source_1");
-                        //mySource.addCAENRFIDEventListener();
+                    int MyDirections = binaryToDecimal(0000); // 1 = OUTPUT
+                    reader.SetIODIRECTION(MyDirections);
 
-                        CAENRFIDTag[] myTags = mySource.InventoryTag();
-                        reader.Disconnect();
+                    int OutputVal = 0xf; //binaryToDecimal(0111);
+                    reader.SetIO(OutputVal);
 
-                        PluginResult.Status status = PluginResult.Status.OK;
+                    int InputVal = 0x0;
+                    InputVal = reader.GetIO();
 
-                        if(myTags != null && myTags.length > 0){
-                            String list = "";
+                    CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
+                    //mySource.addCAENRFIDEventListener();
 
-                            org.json.JSONObject JsonOut = new org.json.JSONObject();
+                    CAENRFIDTag[] myTags = mySource.InventoryTag();
+                    reader.Disconnect();
 
+                    PluginResult.Status status = PluginResult.Status.OK;
 
+                    if(myTags != null && myTags.length > 0){
+                        String list = "";
 
-                            for (int x= 0; x< myTags.length; x++) {
-                                CAENRFIDTag tag = myTags[x];
-
-                                org.json.JSONObject obj = new org.json.JSONObject();
-                                obj.put("Antenna", tag.GetAntenna());
-                                obj.put("Id", bytesToHex(tag.GetId()));
-                                obj.put("Length", tag.GetLength());
-                                obj.put("RSSI", tag.GetRSSI());
-                                obj.put("TID", tag.GetTID());
-                                obj.put("TimeStamp", tag.GetTimeStamp());
-
-                                JsonOut.put("tag_"+x, obj);
-                            }
-
-                            //final byte[] data = new byte[myTags.length];
-                            //callbackContext.success(ListArr.); // + myTags.length);
-                            //callbackContext.sendPluginResult(new PluginResult(status,data));
-
-                            PluginResult result = new PluginResult(PluginResult.Status.OK, JsonOut.toString()); // ListArr.toString()
-                            callbackContext.sendPluginResult(result);
+                        org.json.JSONObject JsonOut = new org.json.JSONObject();
 
 
-                        } else {
-                            final byte[] data = new byte[0];
 
-                            PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT, data);
+                        for (int x= 0; x< myTags.length; x++) {
+                            CAENRFIDTag tag = myTags[x];
 
+                            org.json.JSONObject obj = new org.json.JSONObject();
+                            obj.put("Antenna", tag.GetAntenna());
+                            obj.put("Id", bytesToHex(tag.GetId()));
+                            obj.put("Length", tag.GetLength());
+                            obj.put("RSSI", tag.GetRSSI());
+                            obj.put("TID", tag.GetTID());
+                            obj.put("TimeStamp", tag.GetTimeStamp());
+                            obj.put("Input", InputVal);
 
-                            //callbackContext.success("NON Ci sono tag");
-                            //callbackContext.sendPluginResult(new PluginResult(status, data));
+                            JsonOut.put("tag_"+x, obj);
                         }
 
-                    } /*catch (CAENRFIDException e){
-                        Log.d(TAG, e.getMessage());
-                        callbackContext.error(e.getMessage());
-                    }*/ catch (Exception ex){
-                        callbackContext.error(ex.getMessage());
+                        //final byte[] data = new byte[myTags.length];
+                        //callbackContext.success(ListArr.); // + myTags.length);
+                        //callbackContext.sendPluginResult(new PluginResult(status,data));
+
+                        PluginResult result = new PluginResult(PluginResult.Status.OK, JsonOut.toString()); // ListArr.toString()
+                        callbackContext.sendPluginResult(result);
+
+
+                    } else {
+                        final byte[] data = new byte[0];
+
+                        //PluginResult result = new PluginResult(PluginResult.Status.OK, "Non ci sono tag");
+
+
+                        callbackContext.success("NON Ci sono tag");
+                        //callbackContext.sendPluginResult(new PluginResult(status, data));
                     }
 
-
-
-                    /*
-                    try {
-                        // get connection params or the default values
-                        baudRate = opts.has("baudRate") ? opts.getInt("baudRate") : 9600;
-                        dataBits = opts.has("dataBits") ? opts.getInt("dataBits") : UsbSerialPort.DATABITS_8;
-                        stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
-                        parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
-                        setDTR = opts.has("dtr") && opts.getBoolean("dtr");
-                        setRTS = opts.has("rts") && opts.getBoolean("rts");
-                        // Sleep On Pause defaults to true
-                        sleepOnPause = opts.has("sleepOnPause") ? opts.getBoolean("sleepOnPause") : true;
-
-                        port.open(connection);
-                        port.setParameters(baudRate, dataBits, stopBits, parity);
-                        if (setDTR) port.setDTR(true);
-                        if (setRTS) port.setRTS(true);
-                    }
-                    catch (IOException  e) {
-                        // deal with error
-                        Log.d(TAG, e.getMessage());
-                        callbackContext.error(e.getMessage());
-                    }
-                    catch (JSONException e) {
-                        // deal with error
-                        Log.d(TAG, e.getMessage());
-                        callbackContext.error(e.getMessage());
-                    }*/
-
-                    Log.d(TAG, "Serial port opened!");
-                    callbackContext.success("Serial port opened!");
-                /*}
-                else {
-                    Log.d(TAG, "Cannot connect to the device!");
-                    callbackContext.error("Cannot connect to the device!");
-                }*/
-                //onDeviceStateChange();
+                } catch (Exception ex){
+                    callbackContext.error(ex.getMessage());
+                }
             }
         });
     }
 
+
+
+
+    /*
+     * Java algorithm to convert binary to decimal format
+     */
+    public static int binaryToDecimal(int number) {
+        int decimal = 0;
+        int binary = number;
+        int power = 0;
+
+        while (binary != 0) {
+            int lastDigit = binary % 10;
+            decimal += lastDigit * Math.pow(2, power);
+            power++;
+            binary = binary / 10;
+        }
+        return decimal;
+    }
 
 
 
