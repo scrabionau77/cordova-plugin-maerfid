@@ -172,17 +172,19 @@ public class MaeRfid extends CordovaPlugin {
                     Log.d(TAG, "STEP B!");
                     CAENRFIDReader reader = new CAENRFIDReader();
                     Log.d(TAG, "STEP C!");
-                    reader.Connect(port);
-                    Log.d(TAG, "STEP D!");
+                    //reader.Connect(port);
+                    
 
                     // Definisco quali GPIO sono di ingresso e quali di uscita
                     reader.SetIODIRECTION(GpioConfig);
-
+                    Log.d(TAG, "STEP D!");
                     // Definisco il livello logico per i pin di uscita
                     reader.SetIO(OutputVal);
+                    Log.d(TAG, "STEP E!");
 
                     int InputVal = 0x0;
                     InputVal = reader.GetIO();
+                    Log.d(TAG, "STEP F!");
 
                 } catch (Exception ex){
                     Log.d(TAG, "Errore settaggio CAEN!");
