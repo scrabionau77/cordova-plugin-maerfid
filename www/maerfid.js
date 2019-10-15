@@ -17,12 +17,12 @@ var maerfid = {
         }
     
         if (typeof errorCallback != "function") {
-            console.log("MaeRfid.requestPermission failure: error callback parameter not a function");
+            console.log("MaeRfid.configCaen failure: error callback parameter not a function");
             return;
         }
     
         if (typeof successCallback != "function") {
-            console.log("MaeRfid.requestPermission failure: success callback parameter must be a function");
+            console.log("MaeRfid.configCaen failure: success callback parameter must be a function");
             return;
         }
     

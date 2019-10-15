@@ -179,6 +179,7 @@ public class MaeRfid extends CordovaPlugin {
                     InputVal = reader.GetIO();
 
                 } catch (Exception ex){
+                    Log.d(TAG, "Errore settaggio CAEN!");
                     callbackContext.error(ex.getMessage());
                 }
             }
