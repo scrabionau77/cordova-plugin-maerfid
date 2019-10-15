@@ -326,15 +326,6 @@ public class MaeRfid extends CordovaPlugin {
 
                     reader.Connect(port);
 
-                    int MyDirections = binaryToDecimal(0000); // 1 = OUTPUT
-                    reader.SetIODIRECTION(MyDirections);
-
-                    int OutputVal = 0xf; //binaryToDecimal(0111);
-                    reader.SetIO(OutputVal);
-
-                    int InputVal = 0x0;
-                    InputVal = reader.GetIO();
-
                     CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
                     //mySource.addCAENRFIDEventListener();
 
