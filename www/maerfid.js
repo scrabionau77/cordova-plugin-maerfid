@@ -7,16 +7,16 @@
 
 var maerfid = {
     configCaen: function (opts, successCallback, errorCallback) {
-        console.log('CONFIGURAZIONE');
         if (typeof opts === 'function') {  //user did not pass opts
             console.log("MaeRfid.configCaen failure: options parameter is required!");
             return;
         }
+        console.log('CONFIGURAZIONE');
         if (errorCallback == null) {
             errorCallback = function () {
             };
         }
-    
+        console.log('CONFIGURAZIONE2');
         if (typeof errorCallback != "function") {
             console.log("MaeRfid.configCaen failure: error callback parameter not a function");
             return;
