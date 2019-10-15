@@ -78,6 +78,7 @@ public class MaeRfid extends CordovaPlugin {
 
     // actions definitions
     private static final String ACTION_CONFIG = "configCaen";
+    private static final String ACTION_READ_CONFIG = "readConfig";
     private static final String ACTION_REQUEST_PERMISSION = "requestPermission";
     private static final String ACTION_OPEN = "openSerial";
     private static final String ACTION_READ_GPIO = "readGpio";
@@ -131,6 +132,8 @@ public class MaeRfid extends CordovaPlugin {
         } else if(ACTION_READ_GPIO.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             readGpio(opts, callbackContext);
+        } else if(ACTION_READ_CONFIG.equals(action)){
+            readConfig({}, callbackContext);
         } else {
             return false;
         }
@@ -181,6 +184,38 @@ public class MaeRfid extends CordovaPlugin {
 
                 } catch (Exception ex){
                     Log.d(TAG, "Errore settaggio CAEN!");
+                    callbackContext.error(ex.getMessage());
+                }
+            }
+        });
+    }
+
+
+
+
+    /**
+     * LETTURA CONFIGURAZIONE DISPOSITIVO CAEN
+     */
+    private void readConfig(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    Log.d(TAG, "Avvio lettura configurazione CAEN!");
+                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext());
+                    VCPSerialPort port = ports.get(0);
+
+                    CAENRFIDReader reader = new CAENRFIDReader();
+                    
+                    reader.Connect(port);
+
+                    // ricavo la configurazione degli IO
+                    int IODirection = reader.GetIODirection();
+                    
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, IODirection);
+                    callbackContext.sendPluginResult(result);
+
+                } catch (Exception ex){
+                    Log.d(TAG, "Errore lettura settaggio CAEN!");
                     callbackContext.error(ex.getMessage());
                 }
             }
