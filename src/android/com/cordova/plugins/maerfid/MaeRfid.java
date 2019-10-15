@@ -167,9 +167,13 @@ public class MaeRfid extends CordovaPlugin {
                 try {
                     Log.d(TAG, "Avvio il settaggio del CAEN!");
                     List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext());
+                    Log.d(TAG, "STEP A!");
                     VCPSerialPort port = ports.get(0);
+                    Log.d(TAG, "STEP B!");
                     CAENRFIDReader reader = new CAENRFIDReader();
+                    Log.d(TAG, "STEP C!");
                     reader.Connect(port);
+                    Log.d(TAG, "STEP D!");
 
                     // Definisco quali GPIO sono di ingresso e quali di uscita
                     reader.SetIODIRECTION(GpioConfig);
