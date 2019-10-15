@@ -116,7 +116,7 @@ public class MaeRfid extends CordovaPlugin {
 	 */
     @Override
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
-        Log.d(TAG, "Action: " + action);
+        Log.d(TAG, "ACTION: " + action);
         JSONObject arg_object = args.optJSONObject(0);
 
         if(ACTION_CONFIG.equals(action)){
