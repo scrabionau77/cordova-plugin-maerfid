@@ -172,8 +172,8 @@ public class MaeRfid extends CordovaPlugin {
                     Log.d(TAG, "STEP B!");
                     CAENRFIDReader reader = new CAENRFIDReader();
                     Log.d(TAG, "STEP C!");
-                    //reader.Connect(port);
                     
+                    reader.Connect(port);
 
                     // Definisco quali GPIO sono di ingresso e quali di uscita
                     reader.SetIODIRECTION(0x1); // GpioConfig
