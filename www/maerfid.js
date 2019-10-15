@@ -11,22 +11,23 @@ var maerfid = {
             console.log("MaeRfid.configCaen failure: options parameter is required!");
             return;
         }
-        console.log('CONFIGURAZIONE');
-        if (errorCallback == null) {
+        
+        
+        if (typeof errorCallback == "undefined") {
             errorCallback = function () {
             };
         }
-        console.log('CONFIGURAZIONE2');
+        
         if (typeof errorCallback != "function") {
             console.log("MaeRfid.configCaen failure: error callback parameter not a function");
             return;
         }
-    
+        console.log('CONFIGURAZIONE3');
         if (typeof successCallback != "function") {
             console.log("MaeRfid.configCaen failure: success callback parameter must be a function");
             return;
         }
-    
+        console.log('CONFIGURAZIONE4');
         cordova.exec(successCallback, errorCallback, 'MaeRfid', 'configCaen', [{'opts': opts}]);
     },
     readGpio: function (opts, successCallback, errorCallback) {
