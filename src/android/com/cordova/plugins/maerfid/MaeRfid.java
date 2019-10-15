@@ -176,15 +176,16 @@ public class MaeRfid extends CordovaPlugin {
                     
 
                     // Definisco quali GPIO sono di ingresso e quali di uscita
-                    reader.SetIODIRECTION(GpioConfig);
+                    reader.SetIODIRECTION(0x1); // GpioConfig
                     Log.d(TAG, "STEP D!");
+                    
                     // Definisco il livello logico per i pin di uscita
-                    reader.SetIO(OutputVal);
+                    reader.SetIO(0x1); // OutputVal
                     Log.d(TAG, "STEP E!");
+                    
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, "Settaggio terminato"); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
 
-                    int InputVal = 0x0;
-                    InputVal = reader.GetIO();
-                    Log.d(TAG, "STEP F!");
 
                 } catch (Exception ex){
                     Log.d(TAG, "Errore settaggio CAEN!");
