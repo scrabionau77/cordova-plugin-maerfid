@@ -29,7 +29,7 @@ You can configure the GPIO pin. The plugin exposes method `configCaen` for this.
 ```js
 var options = {
     gpioConfig: 0x3, // Hex value. 0 = INPUT, 1 = OUTPUT
-    outputVal: 0x0,  // Hex value. 0 = Low output value, 1 = High output value
+    outputVal: 0x0  // Hex value. 0 = Low output value, 1 = High output value
 };
 maerfid.configCaen(options, function(success){}, function(error){});
 ```

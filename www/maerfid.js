@@ -7,6 +7,7 @@
 
 var maerfid = {
     configCaen: function (opts, successCallback, errorCallback) {
+        console.log('CONFIGURAZIONE');
         if (typeof opts === 'function') {  //user did not pass opts
             console.log("MaeRfid.configCaen failure: options parameter is required!");
             return;
