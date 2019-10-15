@@ -1,81 +1,134 @@
-# PhoneGap Plugin BarcodeScanner
+# Cordova Plugin MaeRfid
 ================================
 
 [![Build Status](https://travis-ci.org/phonegap/phonegap-plugin-barcodescanner.svg)](https://travis-ci.org/phonegap/phonegap-plugin-barcodescanner)
 
-Cross-platform BarcodeScanner for Cordova / PhoneGap.
-
-Follows the [Cordova Plugin spec](https://cordova.apache.org/docs/en/latest/plugin_ref/spec.html), so that it works with [Plugman](https://github.com/apache/cordova-plugman).
+Android Cordova plugin to connect CAEN Rfid reader
 
 ## Installation
 
-
 This requires phonegap 7.1.0+ ( current stable v8.0.0 )
 
-    phonegap plugin add phonegap-plugin-barcodescanner
+    cordova plugin add https://github.com/scrabionau77/cordova-plugin-maerfid.git
 
 It is also possible to install via repo url directly ( unstable )
 
-    phonegap plugin add https://github.com/phonegap/phonegap-plugin-barcodescanner.git
+    cordova plugin add https://github.com/scrabionau77/cordova-plugin-maerfid.git
 
-Optional variables:
-This plugin requires the Android support library v4. The minimum version is `24.1.0`. Default value is `27.+`.  Check out the latest version [here](https://developer.android.com/topic/libraries/support-library/revisions.html).
-```
-phonegap plugin add phonegap-plugin-barcodescanner --variable ANDROID_SUPPORT_V4_VERSION="27.1.1"
-```
+
 ### Supported Platforms
 
 - Android
-- iOS
-- Windows (Windows/Windows Phone 8.1 and Windows 10)
-- Browser
 
-Note: the Android source for this project includes an Android Library Project.
-plugman currently doesn't support Library Project refs, so its been
-prebuilt as a jar library. Any updates to the Library Project should be
-committed with an updated jar.
+The plugin creates the object `maerfid`
 
-Note: Windows 10 applications can not be build for `AnyCPU` architecture, which is default for Windows platform. If you want to build/run Windows 10 app, you should specify target architecture explicitly, for example (Cordova CLI):
 
-```
-cordova run windows -- --archs=x86
-```
+### METHODS
 
-### PhoneGap Build Usage
 
-Add the following to your config.xml:
+## SETUP GPIO ##
+You can configure the GPIO pin. The plugin exposes method `configCaen` for this. This method needs `options` object that contains pins `direction` (input and output settings) and `value` configurations (set high/low value for output pins). Note: the value setting is ignored for bits configured as input
 
-```
-<!-- add a version here, otherwise PGB will use whatever the latest version of the package on npm is -->
-<plugin name="phonegap-plugin-barcodescanner" />
-```
-On PhoneGap Build if you're using a version of cordova-android of 4 or less, ensure you're building with gradle:
-```
-<preference name="android-build-tool" value="gradle" />
+```js
+options = {
+    gpioConfig = 0x0; // Hex value. 0 = INPUT, 1 = OUTPUT
+    outputVal = 0xf;  // Hex value. 0 = Low output value, 1 = High output value
+};
+maerfid.configCaen(options, function(success){}, function(error){});
 ```
 
-## Using the plugin ##
-The plugin creates the object `cordova.plugins.barcodeScanner` with the method `scan(success, fail)`.
 
-The following barcode types are currently supported:
 
-|  Barcode Type | Android | iOS | Windows  |
-|---------------|:-------:|:---:|:--------:|
-| QR_CODE       |    ✔    |  ✔  |     ✔    |
-| DATA_MATRIX   |    ✔    |  ✔  |     ✔    |
-| UPC_A         |    ✔    |  ✔  |     ✔    |
-| UPC_E         |    ✔    |  ✔  |     ✔    |
-| EAN_8         |    ✔    |  ✔  |     ✔    |
-| EAN_13        |    ✔    |  ✔  |     ✔    |
-| CODE_39       |    ✔    |  ✔  |     ✔    |
-| CODE_93       |    ✔    |  ✔  |     ✔    |
-| CODE_128      |    ✔    |  ✔  |     ✔    |
-| CODABAR       |    ✔    |  ✖  |     ✔    |
-| ITF           |    ✔    |  ✔  |     ✔    |
-| RSS14         |    ✔    |  ✖  |     ✔    |
-| PDF_417       |    ✔    |  ✔  |     ✔    |
-| RSS_EXPANDED  |    ✔    |  ✖  |     ✖    |
-| MSI           |    ✖    |  ✖  |     ✔    |
+The following table show `gpioConfig` value and I/O configuration pins:
+
+| gpioConfig | GPIO3    | GPIO2    | GPIO1    | GPIO0    |
+|------------|:--------:|:--------:|:--------:|:--------:|
+| 0x0        |  0 = IN  |  0 = IN  |  0 = IN  |  0 = IN  |
+| 0x1        |  0 = IN  |  0 = IN  |  0 = IN  |  1 = OUT |
+| 0x2        |  0 = IN  |  0 = IN  |  1 = OUT |  0 = IN  |
+| 0x3        |  0 = IN  |  0 = IN  |  1 = OUT |  1 = OUT |
+| 0x4        |  0 = IN  |  1 = OUT |  0 = IN  |  0 = IN  |
+| 0x5        |  0 = IN  |  1 = OUT |  0 = IN  |  1 = OUT |
+| 0x6        |  0 = IN  |  1 = OUT |  1 = OUT |  0 = IN  |
+| 0x7        |  0 = IN  |  1 = OUT |  1 = OUT |  1 = OUT |
+| 0x8        |  1 = OUT |  0 = IN  |  0 = IN  |  0 = IN  |
+| 0x9        |  1 = OUT |  0 = IN  |  0 = IN  |  1 = OUT |
+| 0xA        |  1 = OUT |  0 = IN  |  1 = OUT |  0 = IN  |
+| 0xB        |  1 = OUT |  0 = IN  |  1 = OUT |  1 = OUT |
+| 0xC        |  1 = OUT |  1 = OUT |  0 = IN  |  0 = IN  |
+| 0xD        |  1 = OUT |  1 = OUT |  0 = IN  |  1 = OUT |
+| 0xE        |  1 = OUT |  1 = OUT |  1 = OUT |  0 = IN  |
+| 0xF        |  1 = OUT |  1 = OUT |  1 = OUT |  1 = OUT |
+
+
+The following table show `outputVal` value and Output pin value (remember: the value setting is ignored for bits configured as input):
+
+| gpioConfig | GPIO3     | GPIO2     | GPIO1     | GPIO0     |
+|------------|:---------:|:---------:|:---------:|:---------:|
+| 0x0        |  0 = LOW  |  0 = LOW  |  0 = LOW  |  0 = LOW  |
+| 0x1        |  0 = LOW  |  0 = LOW  |  0 = LOW  |  1 = HIGH |
+| 0x2        |  0 = LOW  |  0 = LOW  |  1 = HIGH |  0 = LOW  |
+| 0x3        |  0 = LOW  |  0 = LOW  |  1 = HIGH |  1 = HIGH |
+| 0x4        |  0 = LOW  |  1 = HIGH |  0 = LOW  |  0 = LOW  |
+| 0x5        |  0 = LOW  |  1 = HIGH |  0 = LOW  |  1 = HIGH |
+| 0x6        |  0 = LOW  |  1 = HIGH |  1 = HIGH |  0 = LOW  |
+| 0x7        |  0 = LOW  |  1 = HIGH |  1 = HIGH |  1 = HIGH |
+| 0x8        |  1 = HIGH |  0 = LOW  |  0 = LOW  |  0 = LOW  |
+| 0x9        |  1 = HIGH |  0 = LOW  |  0 = LOW  |  1 = HIGH |
+| 0xA        |  1 = HIGH |  0 = LOW  |  1 = HIGH |  0 = LOW  |
+| 0xB        |  1 = HIGH |  0 = LOW  |  1 = HIGH |  1 = HIGH |
+| 0xC        |  1 = HIGH |  1 = HIGH |  0 = LOW  |  0 = LOW  |
+| 0xD        |  1 = HIGH |  1 = HIGH |  0 = LOW  |  1 = HIGH |
+| 0xE        |  1 = HIGH |  1 = HIGH |  1 = HIGH |  0 = LOW  |
+| 0xF        |  1 = HIGH |  1 = HIGH |  1 = HIGH |  1 = HIGH |
+
+
+
+## READ GPIO ##
+You can read GPIO pin. The plugin exposes method `readGpio` for this. Note: during reading, the pins configured as output are read and their value corresponds to the one set previously with the `configCaen` method.
+
+```js
+maerfid.readGpio({}, function(success){}, function(error){});
+```
+
+
+
+## REQUEST CONNECTION PERMISSION ##
+This is the first required operation to communicate with the device.
+The plugin exposes method `requestPermission` for this. This method needs `options` object that contains vid, pid e driver configurations (these data are provided by the manufacturer. For Caen Hadron they are show below).
+
+```js
+maerfid.rerequestPermissionadGpio({
+        vid: '21E1',
+        pid: '0089',
+        driver: 'CdcAcmSerialDriver'
+    },
+    function(success){
+        // now you can call openSerial method
+    },
+    function(error){}
+);
+```
+
+
+
+## RFID READING ##
+After obtaining the communication permission, you can call this method to read the RFIDs picked up by the antenna. The plugin esposes `openSerial` method for this. This method needs `options` object that contains `src` number (indicating the antenna to read from).
+
+```js
+maerfid.openSerial({
+        src: 0 // 0 to 3 (Caen Hadron has up to 4 antennas)
+    },
+    function(success){
+        
+    },
+    function(error){}
+);
+```
+
+
+
+THIS IS OLD CONTENT!!!!!!!!!!!!!!!!!!!!
 | AZTEC         |    ✔    |  ✔  |     ✔    |
 
 `success` and `fail` are callback functions. Success is passed an object with data, type and cancelled properties. Data is the text representation of the barcode data, type is the type of barcode detected and cancelled is whether or not the user cancelled the scan.
