@@ -20,10 +20,10 @@ It is also possible to install via repo url directly ( unstable )
 The plugin creates the object `maerfid`
 
 
-### METHODS
+## METHODS ##
 
 
-## SETUP GPIO ##
+### SETUP GPIO
 You can configure the GPIO pin. The plugin exposes method `configCaen` for this. This method needs `options` object that contains pins `direction` (input and output settings) and `value` configurations (set high/low value for output pins). Note: the value setting is ignored for bits configured as input
 
 ```js
@@ -81,7 +81,7 @@ The following table show `outputVal` value and Output pin value (remember: the v
 
 
 
-## READ GPIO ##
+### READ GPIO
 You can read GPIO pin. The plugin exposes method `readGpio` for this. Note: during reading, the pins configured as output are read and their value corresponds to the one set previously with the `configCaen` method.
 
 ```js
@@ -90,7 +90,7 @@ maerfid.readGpio({}, function(success){}, function(error){});
 
 
 
-## REQUEST CONNECTION PERMISSION ##
+### REQUEST CONNECTION PERMISSION
 This is the first required operation to communicate with the device.
 The plugin exposes method `requestPermission` for this. This method needs `options` object that contains vid, pid e driver configurations (these data are provided by the manufacturer. For Caen Hadron they are show below).
 
@@ -109,7 +109,7 @@ maerfid.rerequestPermissionadGpio({
 
 
 
-## RFID READING ##
+### RFID READING
 After obtaining the communication permission, you can call this method to read the RFIDs picked up by the antenna. The plugin esposes `openSerial` method for this. This method needs `options` object that contains `src` number (indicating the antenna to read from).
 
 ```js
