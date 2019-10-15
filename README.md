@@ -1,13 +1,10 @@
 # Cordova Plugin MaeRfid
 ================================
 
-[![Build Status](https://travis-ci.org/phonegap/phonegap-plugin-barcodescanner.svg)](https://travis-ci.org/phonegap/phonegap-plugin-barcodescanner)
-
-Android Cordova plugin to connect CAEN Rfid reader
+Android Cordova plugin to connect CAEN HADRON Rfid reader. Tested on android 8.
+Note: This plugin does not expose all the methods provided by the CAEN device. It contains some methods that allow the reading of RFID tags.
 
 ## Installation
-
-This requires phonegap 7.1.0+ ( current stable v8.0.0 )
 
     cordova plugin add https://github.com/scrabionau77/cordova-plugin-maerfid.git
 
