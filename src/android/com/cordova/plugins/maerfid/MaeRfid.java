@@ -212,7 +212,7 @@ public class MaeRfid extends CordovaPlugin {
                     callbackContext.sendPluginResult(result);
 
                 } catch (Exception ex){
-                    callbackContext.error(ex.getMessage());
+                    callbackContext.error(ex); // .getMessage()
                 }
             }
         });
