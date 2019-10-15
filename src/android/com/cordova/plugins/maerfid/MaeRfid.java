@@ -351,7 +351,6 @@ public class MaeRfid extends CordovaPlugin {
                             obj.put("RSSI", tag.GetRSSI());
                             obj.put("TID", tag.GetTID());
                             obj.put("TimeStamp", tag.GetTimeStamp());
-                            obj.put("Input", InputVal);
 
                             JsonOut.put("tag_"+x, obj);
                         }
