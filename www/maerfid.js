@@ -12,7 +12,7 @@ var maerfid = {
             return;
         }
         
-        
+
         if (typeof errorCallback == "undefined") {
             errorCallback = function () {
             };
@@ -22,12 +22,12 @@ var maerfid = {
             console.log("MaeRfid.configCaen failure: error callback parameter not a function");
             return;
         }
-        console.log('CONFIGURAZIONE3');
+
         if (typeof successCallback != "function") {
             console.log("MaeRfid.configCaen failure: success callback parameter must be a function");
             return;
         }
-        console.log('CONFIGURAZIONE4');
+
         cordova.exec(successCallback, errorCallback, 'MaeRfid', 'configCaen', [{'opts': opts}]);
     },
     readGpio: function (opts, successCallback, errorCallback) {

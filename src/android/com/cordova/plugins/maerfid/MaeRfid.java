@@ -148,7 +148,7 @@ public class MaeRfid extends CordovaPlugin {
     private void configCaen(final JSONObject opts, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-
+                Log.d(TAG, "configCaen 1");
                 int GpioConfig = 0x0; // 0 = INPUT, 1 = OUTPUT
                 int OutputVal = 0xf;
 
@@ -156,11 +156,13 @@ public class MaeRfid extends CordovaPlugin {
                     Object o_gpio = opts.opt("gpioConfig"); //can be an integer Number or a hex String
                     GpioConfig = o_gpio instanceof Number ? ((Number) o_gpio).intValue() : Integer.parseInt((String) o_gpio, 16);
                 }
+                Log.d(TAG, "configCaen 2");
 
                 if (opts.has("outputVal")) {
                     Object o_ov = opts.opt("outputVal"); //can be an integer Number or a hex String
                     OutputVal = o_ov instanceof Number ? ((Number) o_ov).intValue() : Integer.parseInt((String) o_ov, 16);
                 }
+                Log.d(TAG, "configCaen 3");
 
                 try {
                     Log.d(TAG, "Avvio il settaggio del CAEN!");
