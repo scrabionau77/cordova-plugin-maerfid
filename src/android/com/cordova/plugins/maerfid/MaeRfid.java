@@ -85,7 +85,6 @@ public class MaeRfid extends CordovaPlugin {
     private static final String ACTION_READ_GPIO = "readGpio";
     private static final String ACTION_CONNECT = "connect";
     private static final String ACTION_CONFIG_CAEN = "configCaen";
-    private static final String ACTION_READ_GPIO_ASYNC = "readGpioAsync";
     private static final String ACTION_WAIT_RFID = "waitRfid";
     private static final String ACTION_DISCONNECT = "disconnect";
 
@@ -146,9 +145,6 @@ public class MaeRfid extends CordovaPlugin {
         } else if(ACTION_CONFIG_CAEN.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             configCaen(opts, callbackContext);
-        } else if(ACTION_READ_GPIO_ASYNC.equals(action)){
-            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
-            readGpioAsync(opts, callbackContext);
         } else if(ACTION_WAIT_RFID.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             waitRfid(opts, callbackContext);
@@ -493,12 +489,11 @@ public class MaeRfid extends CordovaPlugin {
 
 
 
-    // TO DO!
 
 
 
 
-
+    // OTHER METHOD
 
 
     /**
@@ -510,9 +505,6 @@ public class MaeRfid extends CordovaPlugin {
 
                 try {
                     Log.d(TAG, "Avvio la lettura delle GPIO!");
-                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext());
-                    VCPSerialPort port = ports.get(0);
-                    CAENRFIDReader reader = new CAENRFIDReader();
                     reader.Connect(port);
 
                     // Leggo il valore dei GPIO
@@ -570,8 +562,6 @@ public class MaeRfid extends CordovaPlugin {
                         String list = "";
 
                         org.json.JSONObject JsonOut = new org.json.JSONObject();
-
-
 
                         for (int x= 0; x< myTags.length; x++) {
                             CAENRFIDTag tag = myTags[x];
@@ -634,7 +624,9 @@ public class MaeRfid extends CordovaPlugin {
 
 
 
-
+    /*
+     * Java algorithm to convert bite to hex
+     */
     private static String bytesToHex(byte[] hashInBytes) {
 
         StringBuilder sb = new StringBuilder();
@@ -648,78 +640,11 @@ public class MaeRfid extends CordovaPlugin {
 
 
 
-    /**
-     * Convert a given string of hexadecimal numbers
-     * into a byte[] array where every 2 hex chars get packed into
-     * a single byte.
-     *
-     * E.g. "ffaa55" results in a 3 byte long byte array
-     *
-     * @param s
-     * @return
-     */
-    private byte[] hexStringToByteArray(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i+1), 16));
-        }
-        return data;
-    }
 
 
-
-
-    /**
-     * Called when the barcode scanner intent completes.
-     *
-     * @param requestCode The request code originally supplied to startActivityForResult(),
-     *                       allowing you to identify who this result came from.
-     * @param resultCode  The integer result code returned by the child activity through its setResult().
-     * @param intent      An Intent, which can return result data to the caller (various data can be attached to Intent "extras").
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == REQUEST_CODE && this.callbackContext != null) {
-            if (resultCode == Activity.RESULT_OK) {
-                JSONObject obj = new JSONObject();
-                try {
-                    obj.put(TEXT, intent.getStringExtra("SCAN_RESULT"));
-                    obj.put(FORMAT, intent.getStringExtra("SCAN_RESULT_FORMAT"));
-                    obj.put(CANCELLED, false);
-                } catch (JSONException e) {
-                    Log.d(TAG, "This should never happen");
-                }
-                //this.success(new PluginResult(PluginResult.Status.OK, obj), this.callback);
-                this.callbackContext.success(obj);
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                JSONObject obj = new JSONObject();
-                try {
-                    obj.put(TEXT, "");
-                    obj.put(FORMAT, "");
-                    obj.put(CANCELLED, true);
-                } catch (JSONException e) {
-                    Log.d(TAG, "This should never happen");
-                }
-                //this.success(new PluginResult(PluginResult.Status.OK, obj), this.callback);
-                this.callbackContext.success(obj);
-            } else {
-                //this.error(new PluginResult(PluginResult.Status.ERROR), this.callback);
-                this.callbackContext.error("Unexpected error");
-            }
-        }
-    }
-
-
-
-
-
-
-
-    private class GpioPollong extends AsyncTask<Void, Integer, String>
-    {
-        @Override
+    /*
+    * Loop to detect trigger GPIO
+    */
         protected void onPreExecute() {
             super.onPreExecute();
             Log.d(TAG, "AAAAA PRE EXECUTE");
@@ -740,8 +665,6 @@ public class MaeRfid extends CordovaPlugin {
             String InputString = Integer.toString(InputSetting, 2); // converto in binario
             
 
-
-            // CAENRFIDLogicalSource mySource = reader.GetSource(caen_src); // seleziona l'antenna
             Boolean iterate = true;
             int InputVal = 0x0;
             try {
@@ -778,7 +701,7 @@ public class MaeRfid extends CordovaPlugin {
         {
             Log.d(TAG, "AAAAA ON UPDATE");
             super.onProgressUpdate(values);
-            //progress.setProgress(values[0].intValue());
+
         }
         @Override
         protected void onPostExecute(String result)
@@ -790,22 +713,8 @@ public class MaeRfid extends CordovaPlugin {
 
 
             super.onPostExecute(result);
-            //progress.dismiss();
-            //Toast.makeText(MainActivity.this, result,	Toast.LENGTH_SHORT).show();
         }
     }
 
 
-
-
-
-
-
 }
-
-
-
-
-
-
-

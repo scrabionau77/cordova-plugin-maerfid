@@ -136,29 +136,6 @@ var maerfid = {
     
         cordova.exec(successCallback, errorCallback, 'MaeRfid', 'configCaen', [{'opts': opts}]);
     },
-    readGpioAsync: function (opts, successCallback, errorCallback) {
-        if (errorCallback == null) {
-            errorCallback = function () {
-            };
-        }
-        if (typeof opts === 'function') {  //user did not pass opts
-            errorCallback = successCallback;
-            successCallback = opts;
-            opts = {};
-        }
-        
-        if (typeof errorCallback != "function") {
-            console.log("MaeRfid.readGpioAsync failure: error callback parameter not a function");
-            return;
-        }
-    
-        if (typeof successCallback != "function") {
-            console.log("MaeRfid.readGpioAsync failure: success callback parameter must be a function");
-            return;
-        }
-    
-        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'readGpioAsync', [{'opts': opts}]);
-    },
     waitRfid: function (opts, successCallback, errorCallback) {
         if (errorCallback == null) {
             errorCallback = function () {

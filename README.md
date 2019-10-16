@@ -236,6 +236,18 @@ The following table show `outputVal` value and Output pin value (remember: the v
 
 
 
+
+
+### DISCONNECT
+Close HADRON device connection.
+
+```js
+maerfid.disconnect({}, function(success){}, function(error){});
+```
+
+
+
+
 ### READ GPIO CONFIG
 You can read GPIO direction settings. The plugin exposes method `readConfig` for this. Note: by default, all GPIO pins are set as input.
 
