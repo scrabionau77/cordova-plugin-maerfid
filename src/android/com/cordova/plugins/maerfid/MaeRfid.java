@@ -616,10 +616,10 @@ public class MaeRfid extends CordovaPlugin {
             Boolean iterate = true;
             int InputVal = 0x0;
             try {
-                InputVal = reader.GetIO();
-
+                
                 while(iterate){
                     Log.d(TAG, "AAAAA ANCORA A ZERO!");
+                    InputVal = reader.GetIO();
                     if(InputVal > 0){
                         iterate = false;
                         Log.d(TAG, "AAAAA ESCO");
