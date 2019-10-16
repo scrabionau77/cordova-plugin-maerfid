@@ -455,6 +455,71 @@ public class MaeRfid extends CordovaPlugin {
         });
     }
 
+
+
+    private void readTagLoop(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+
+                int src = 0;
+                if (opts.has("source")) {
+                    Object o_src = opts.opt("source"); //can be an integer Number or a hex String
+                    src = o_src instanceof Number ? ((Number) o_src).intValue() : Integer.parseInt((String) o_src, 16);
+
+                    if(src < 0 || src > 3){
+                        src = 0;
+                    }
+                }
+
+                String caen_src = "Source_" + src; // ex: Source_0 for antenna 0
+
+
+                try {
+                    Log.d(TAG, "Avvio apertura porta seriale!");
+
+                    CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
+
+                    // Loop
+                    long t= System.currentTimeMillis();
+                    long end = t + 5000;
+
+                    org.json.JSONObject JsonOut = new org.json.JSONObject();
+                    while(System.currentTimeMillis() < end) {
+                        CAENRFIDTag[] myTags = mySource.InventoryTag();
+
+                        if(myTags != null && myTags.length > 0){
+                            for (int x= 0; x< myTags.length; x++) {
+                                CAENRFIDTag tag = myTags[x];
+
+                                org.json.JSONObject obj = new org.json.JSONObject();
+                                obj.put("Antenna", tag.GetAntenna());
+                                obj.put("Id", bytesToHex(tag.GetId()));
+                                obj.put("Length", tag.GetLength());
+                                obj.put("RSSI", tag.GetRSSI());
+                                obj.put("TID", tag.GetTID());
+                                obj.put("TimeStamp", tag.GetTimeStamp());
+    
+                                JsonOut.put("tag_"+x, obj);
+                            }
+                        }
+
+
+                        Thread.sleep( 10 );
+                    }
+
+                    // manca il FILTER "ARRAY" x togliere i doppioni
+
+                    PluginResult.Status status = PluginResult.Status.OK;
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, JsonOut.toString()); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+
+                } catch (Exception ex){
+                    callbackContext.error(ex.getMessage());
+                }
+            }
+        });
+    }
+
     private void connect(final JSONObject opts, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
