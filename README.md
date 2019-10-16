@@ -1,7 +1,7 @@
 # Cordova Plugin MaeRfid
 ================================
 
-Android Cordova plugin to connect CAEN HADRON Rfid reader. Tested on android 8.
+Android Cordova plugin to connect CAEN HADRON Rfid reader to Android device through USB OTG cable. Tested on android 8.
 Note: This plugin does not expose all the methods provided by the CAEN device. It contains some methods that allow the reading of RFID tags.
 
 ## Installation
@@ -20,7 +20,161 @@ It is also possible to install via repo url directly ( unstable )
 The plugin creates the object `maerfid`
 
 
+## HOW IT WORKS ##
+There are steps to complete to enable RFID reading:
+1) Enable serial USB communication (method `requestPermission` show below);
+2) Enable connection to the CAEN Reader device (method `connect`);
+3) Set the operating parameters of the CAEN device (method `configCaenAsync`)
+
+After that it is possible to proceed in two ways:
+A) Use the automatic method that waits for RFID reads when a GPIO is activated (method `waitRfid`);
+B) Use the other methods available;
+
+
+
 ## METHODS ##
+
+### REQUEST USB CONNECTION PERMISSION
+This is the first required operation to communicate with the device.
+The plugin exposes method `requestPermission` for this. This method needs `options` object that contains vid, pid e driver configurations (these data are provided by the manufacturer. For Caen Hadron they are show below).
+
+```js
+maerfid.rerequestPermissionadGpio({
+        vid: '21E1',
+        pid: '0089',
+        driver: 'CdcAcmSerialDriver'
+    },
+    function(success){
+        // authorization granted
+    },
+    function(error){}
+);
+```
+
+
+### CONNECT TO CAEN RFID READER
+The `connect` method establishes communication with the CAEN Reader device. You'll can use the `disconnect` method to close the connection.
+
+```js
+maerfid.connect({},
+    function(success){
+        // establishes communication
+    },
+    function(error){}
+);
+```
+
+
+
+### CONFIG CAEN RFID READER
+You can configure the device using `configCaen` method. It needs `options` object that contains GPIO pins `direction` (input and output settings) and `value` configurations (set high/low value for GPIO pins set as output). Note: the value setting is ignored for bits configured as input.
+By default, all GPIO are set as input (equivalent to options.gpioConfig: 0x0).
+
+```js
+var options = {
+    gpioConfig: 0x3, // Hex value. 0 = INPUT, 1 = OUTPUT
+    outputVal: 0x0  // Hex value. 0 = Low output value, 1 = High output value
+};
+maerfid.configCaen(options, function(success){}, function(error){});
+```
+
+The following table show `gpioConfig` value and I/O configuration pins:
+
+| gpioConfig | GPIO3    | GPIO2    | GPIO1    | GPIO0    |
+|------------|:--------:|:--------:|:--------:|:--------:|
+| 0x0        |  0 = IN  |  0 = IN  |  0 = IN  |  0 = IN  |
+| 0x1        |  0 = IN  |  0 = IN  |  0 = IN  |  1 = OUT |
+| 0x2        |  0 = IN  |  0 = IN  |  1 = OUT |  0 = IN  |
+| 0x3        |  0 = IN  |  0 = IN  |  1 = OUT |  1 = OUT |
+| 0x4        |  0 = IN  |  1 = OUT |  0 = IN  |  0 = IN  |
+| 0x5        |  0 = IN  |  1 = OUT |  0 = IN  |  1 = OUT |
+| 0x6        |  0 = IN  |  1 = OUT |  1 = OUT |  0 = IN  |
+| 0x7        |  0 = IN  |  1 = OUT |  1 = OUT |  1 = OUT |
+| 0x8        |  1 = OUT |  0 = IN  |  0 = IN  |  0 = IN  |
+| 0x9        |  1 = OUT |  0 = IN  |  0 = IN  |  1 = OUT |
+| 0xA        |  1 = OUT |  0 = IN  |  1 = OUT |  0 = IN  |
+| 0xB        |  1 = OUT |  0 = IN  |  1 = OUT |  1 = OUT |
+| 0xC        |  1 = OUT |  1 = OUT |  0 = IN  |  0 = IN  |
+| 0xD        |  1 = OUT |  1 = OUT |  0 = IN  |  1 = OUT |
+| 0xE        |  1 = OUT |  1 = OUT |  1 = OUT |  0 = IN  |
+| 0xF        |  1 = OUT |  1 = OUT |  1 = OUT |  1 = OUT |
+
+
+The following table show `outputVal` variable value and corresponding Output pin value (remember: the value setting is ignored for pins configured as input):
+
+| gpioConfig | GPIO3     | GPIO2     | GPIO1     | GPIO0     |
+|------------|:---------:|:---------:|:---------:|:---------:|
+| 0x0        |  0 = LOW  |  0 = LOW  |  0 = LOW  |  0 = LOW  |
+| 0x1        |  0 = LOW  |  0 = LOW  |  0 = LOW  |  1 = HIGH |
+| 0x2        |  0 = LOW  |  0 = LOW  |  1 = HIGH |  0 = LOW  |
+| 0x3        |  0 = LOW  |  0 = LOW  |  1 = HIGH |  1 = HIGH |
+| 0x4        |  0 = LOW  |  1 = HIGH |  0 = LOW  |  0 = LOW  |
+| 0x5        |  0 = LOW  |  1 = HIGH |  0 = LOW  |  1 = HIGH |
+| 0x6        |  0 = LOW  |  1 = HIGH |  1 = HIGH |  0 = LOW  |
+| 0x7        |  0 = LOW  |  1 = HIGH |  1 = HIGH |  1 = HIGH |
+| 0x8        |  1 = HIGH |  0 = LOW  |  0 = LOW  |  0 = LOW  |
+| 0x9        |  1 = HIGH |  0 = LOW  |  0 = LOW  |  1 = HIGH |
+| 0xA        |  1 = HIGH |  0 = LOW  |  1 = HIGH |  0 = LOW  |
+| 0xB        |  1 = HIGH |  0 = LOW  |  1 = HIGH |  1 = HIGH |
+| 0xC        |  1 = HIGH |  1 = HIGH |  0 = LOW  |  0 = LOW  |
+| 0xD        |  1 = HIGH |  1 = HIGH |  0 = LOW  |  1 = HIGH |
+| 0xE        |  1 = HIGH |  1 = HIGH |  1 = HIGH |  0 = LOW  |
+| 0xF        |  1 = HIGH |  1 = HIGH |  1 = HIGH |  1 = HIGH |
+
+
+
+
+
+### WAIT FOR RFID
+The HADRON Reader device allows you to connect up to 4 antennas for reading RFID tags.
+This method involves reading the RFID tags when activating one of the GPIO pins. In other words, when a positive voltage (>= 5V) is applied to one of the GPIO pins set as input, the reading of the RFID tags starts.
+This method requires the `options` parameter. With this parameter we can choose:
+1) Which antennas correspond to each GPIO input (for each input it is possible to choose one or more antennas from which to read the RFID);
+2) How long to read the RFIDs after applying the positive voltage to the GPIO input.
+
+The reading is repeated several times in the time frame set in the options parameter. When finished, the list of read tags is returned.
+Note: The list of read tags is filtered to prevent the same tag from being repeated in the returned list.
+Note2: The method stops when the result is returned. He must therefore be called back to start further reading.
+
+
+IMPORTANT: Activate the reading only from the antennas actually connected to the HADRON Reader to avoid possible damage to the device.
+
+```js
+var options = {
+    Input1Antennas: 0x3, // see below table for details
+    Input2Antennas: 0x3,
+    Input3Antennas: 0x3,
+    readRfidDuration: 50000  // milliseconds
+};
+
+maerfid.waitRfid(options, function(success){}, function(error){});
+```
+
+
+The following table show `Input1Antennas`, `Input2Antennas`, `Input3Antennas` values and corresponding antennas readed.
+
+| Value      | ANT 3    | ANT 2    | ANT 1    | ANT 0    |
+|------------|:--------:|:--------:|:--------:|:--------:|
+| 0x0        |          |          |          |          |
+| 0x1        |          |          |          |   ✔     |
+| 0x2        |    |    |   ✔     |       |
+| 0x3        |    |    |  ✔ |  ✔ |
+| 0x4        |    |  ✔ |    |    |
+| 0x5        |    |  ✔ |    |  ✔ |
+| 0x6        |    |  ✔ |  ✔ |    |
+| 0x7        |    |  ✔ |  ✔ |  ✔ |
+| 0x8        |  ✔ |    |    |    |
+| 0x9        |  ✔ |    |    |  ✔ |
+| 0xA        |  ✔ |    |  ✔ |    |
+| 0xB        |  ✔ |    |  ✔ |  ✔ |
+| 0xC        |  ✔ |  ✔ |    |    |
+| 0xD        |  ✔ |  ✔ |    |  ✔ |
+| 0xE        |  ✔ |  ✔ |  ✔ |    |
+| 0xF        |  ✔ |  ✔ |  ✔ |  ✔ |
+
+
+
+
 
 
 ### SETUP GPIO
@@ -96,26 +250,6 @@ You can read GPIO pin value. The plugin exposes method `readGpioValue` for this.
 ```js
 maerfid.readGpioValue({}, function(success){}, function(error){});
 ```
-
-
-
-### REQUEST CONNECTION PERMISSION
-This is the first required operation to communicate with the device.
-The plugin exposes method `requestPermission` for this. This method needs `options` object that contains vid, pid e driver configurations (these data are provided by the manufacturer. For Caen Hadron they are show below).
-
-```js
-maerfid.rerequestPermissionadGpio({
-        vid: '21E1',
-        pid: '0089',
-        driver: 'CdcAcmSerialDriver'
-    },
-    function(success){
-        // now you can call readRfid method
-    },
-    function(error){}
-);
-```
-
 
 
 ### RFID READING

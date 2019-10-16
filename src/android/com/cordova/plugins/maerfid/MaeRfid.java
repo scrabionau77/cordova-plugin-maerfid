@@ -20,6 +20,9 @@ import java.util.Date;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+
+import java.util.List;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -74,31 +77,33 @@ public class MaeRfid extends CordovaPlugin {
     private static final String FORMAT = "format";
     private static final String TEXT = "text";
 
-
     private static final String TAG = "MaeRfid";
 
     // actions definitions
-    private static final String ACTION_CONFIG = "configCaen";
     private static final String ACTION_REQUEST_PERMISSION = "requestPermission";
     private static final String ACTION_READ_TAG = "readTag";
     private static final String ACTION_READ_GPIO = "readGpio";
     private static final String ACTION_CONNECT = "connect";
-    private static final String ACTION_CONFIG_ASYNC = "configCaenAsync";
+    private static final String ACTION_CONFIG_CAEN = "configCaen";
     private static final String ACTION_READ_GPIO_ASYNC = "readGpioAsync";
+    private static final String ACTION_WAIT_RFID = "waitRfid";
 
 
-
-    // NUOVA IMPLEMENTAZIONE
-    // UsbManager instance to deal with permission and opening
-    private UsbManager manager;
-    // The current driver that handle the serial port
-    private UsbSerialDriver driver;
-    // The serial port that will be used in this plugin
-    private UsbSerialPort port;
+    private UsbManager manager; // UsbManager instance to deal with permission and opening
+    private UsbSerialDriver driver; // The current driver that handle the serial port
+    private UsbSerialPort port; // The serial port that will be used in this plugin
 
     private JSONArray requestArgs;
     private CallbackContext callbackContext;
     private CAENRFIDReader reader = new CAENRFIDReader();
+
+    // setting variables
+    private Integer Input1Antennas = 0;
+    private Integer Input2Antennas = 0;
+    private Integer Input3Antennas = 0;
+    private Integer readRfidDuration = 5000; // milliseconds
+    private Boolean isConnected = false;
+
 
     /**
      * Constructor.
@@ -124,10 +129,7 @@ public class MaeRfid extends CordovaPlugin {
         JSONObject arg_object = args.optJSONObject(0);
         this.callbackContext = callbackContext;
 
-        if(ACTION_CONFIG.equals(action)){
-            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
-            configCaen(opts, callbackContext);
-        } else if(ACTION_REQUEST_PERMISSION.equals(action)){
+        if(ACTION_REQUEST_PERMISSION.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             requestPermission(opts, callbackContext);
         } else if(ACTION_READ_TAG.equals(action)){
@@ -139,168 +141,31 @@ public class MaeRfid extends CordovaPlugin {
         } else if(ACTION_CONNECT.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             connect(opts, callbackContext);
-        } else if(ACTION_CONFIG_ASYNC.equals(action)){
+        } else if(ACTION_CONFIG_CAEN.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
-            configCaenAsync(opts, callbackContext);
+            configCaen(opts, callbackContext);
         } else if(ACTION_READ_GPIO_ASYNC.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             readGpioAsync(opts, callbackContext);
-        } else {
+        } else  if(ACTION_WAIT_RFID.equals(action)){
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            waitRfid(opts, callbackContext);
+        } else{
             return false;
         }
         return true;
     }
 
 
-
-
-
-
-    /**
-     * CONFIGURAZIONE DISPOSITIVO CAEN
-     */
-    private void configCaen(final JSONObject opts, final CallbackContext callbackContext) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                int GpioConfig = 0x0; // 0 = INPUT, 1 = OUTPUT
-                int OutputVal = 0xf;
-
-                if (opts.has("gpioConfig")) {
-                    Object o_gpio = opts.opt("gpioConfig"); //can be an integer Number or a hex String
-                    GpioConfig = o_gpio instanceof Number ? ((Number) o_gpio).intValue() : Integer.parseInt((String) o_gpio, 16);
-                }
-
-                if (opts.has("outputVal")) {
-                    Object o_ov = opts.opt("outputVal"); //can be an integer Number or a hex String
-                    OutputVal = o_ov instanceof Number ? ((Number) o_ov).intValue() : Integer.parseInt((String) o_ov, 16);
-                }
-
-                try {
-                    Log.d(TAG, "Avvio il settaggio del CAEN!");
-                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext());
-                    VCPSerialPort port = ports.get(0);
-
-                    CAENRFIDReader reader = new CAENRFIDReader();
-
-                    reader.Connect(port);
-
-                    // Definisco quali GPIO sono di ingresso e quali di uscita
-                    reader.SetIODIRECTION(GpioConfig);
-
-                    // Definisco il livello logico per i pin di uscita
-                    reader.SetIO(OutputVal);
-
-
-
-                    PluginResult result = new PluginResult(PluginResult.Status.OK, "Settaggio terminato"); // ListArr.toString()
-                    callbackContext.sendPluginResult(result);
-
-                } catch (Exception ex){
-                    Log.d(TAG, "Errore settaggio CAEN!");
-                    callbackContext.error(ex.getMessage());
-                }
-            }
-        });
-    }
-
-    private void configCaenAsync(final JSONObject opts, final CallbackContext callbackContext) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                int GpioConfig = 0x0; // 0 = INPUT, 1 = OUTPUT
-                int OutputVal = 0xf;
-
-                if (opts.has("gpioConfig")) {
-                    Object o_gpio = opts.opt("gpioConfig"); //can be an integer Number or a hex String
-                    GpioConfig = o_gpio instanceof Number ? ((Number) o_gpio).intValue() : Integer.parseInt((String) o_gpio, 16);
-                }
-
-                if (opts.has("outputVal")) {
-                    Object o_ov = opts.opt("outputVal"); //can be an integer Number or a hex String
-                    OutputVal = o_ov instanceof Number ? ((Number) o_ov).intValue() : Integer.parseInt((String) o_ov, 16);
-                }
-
-                try {
-                    Log.d(TAG, "Avvio il settaggio del CAEN!");
-
-                    // Definisco quali GPIO sono di ingresso e quali di uscita
-                    reader.SetIODIRECTION(GpioConfig);
-
-                    // Definisco il livello logico per i pin di uscita
-                    reader.SetIO(OutputVal);
-
-                    PluginResult result = new PluginResult(PluginResult.Status.OK, "Settaggio terminato"); // ListArr.toString()
-                    callbackContext.sendPluginResult(result);
-
-                } catch (Exception ex){
-                    Log.d(TAG, "Errore settaggio CAEN!");
-                    callbackContext.error(ex.getMessage());
-                }
-            }
-        });
-    }
-
-
-    /**
-     * LETTURA STATO GPIO
-     */
-    private void readGpio(final JSONObject opts, final CallbackContext callbackContext) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-
-                try {
-                    Log.d(TAG, "Avvio la lettura delle GPIO!");
-                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext());
-                    VCPSerialPort port = ports.get(0);
-                    CAENRFIDReader reader = new CAENRFIDReader();
-                    reader.Connect(port);
-
-                    // Leggo il valore dei GPIO
-                    int InputVal = 0x0;
-                    InputVal = reader.GetIO();
-
-                    PluginResult result = new PluginResult(PluginResult.Status.OK, InputVal); // ListArr.toString()
-                    callbackContext.sendPluginResult(result);
-
-                } catch (Exception ex){
-                    //callbackContext.error(ex); // .getMessage()
-
-                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()
-                    callbackContext.sendPluginResult(result);
-                }
-            }
-        });
-    }
+    
 
 
 
 
 
-    private void readGpioAsync(final JSONObject opts, final CallbackContext callbackContext) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
 
-                try {
-                    Log.d(TAG, "Avvio la lettura delle GPIO!");
 
-                    // Leggo il valore dei GPIO
-                    int InputVal = 0x0;
-                    InputVal = reader.GetIO();
 
-                    new GpioPollong().execute();
-
-                    
-                    //PluginResult result = new PluginResult(PluginResult.Status.OK, InputVal); // ListArr.toString()
-                    //callbackContext.sendPluginResult(result);
-
-                } catch (Exception ex){
-                    //callbackContext.error(ex); // .getMessage()
-
-                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()
-                    callbackContext.sendPluginResult(result);
-                }
-            }
-        });
-    }
 
 
 
@@ -367,6 +232,8 @@ public class MaeRfid extends CordovaPlugin {
                     cordova.getActivity().registerReceiver(usbReceiver, filter);
                     // finally ask for the permission
                     manager.requestPermission(device, pendingIntent);
+
+                    isConnected = false;
                 }
                 else {
                     // no available drivers
@@ -381,7 +248,201 @@ public class MaeRfid extends CordovaPlugin {
 
 
     /**
-     * APERTURA CONNESSIONE PORTA
+     * CONNESSIONE AL DISPOSITIVO CAEN
+     */
+    private void connect(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+
+                int src = 0;
+                if (opts.has("source")) {
+                    Object o_src = opts.opt("source"); //can be an integer Number or a hex String
+                    src = o_src instanceof Number ? ((Number) o_src).intValue() : Integer.parseInt((String) o_src, 16);
+
+                    if(src < 0 || src > 3){
+                        src = 0;
+                    }
+                }
+
+                String caen_src = "Source_" + src; // ex: Source_0 for antenna 0
+
+                try {
+                    Log.d(TAG, "Avvio apertura porta seriale!");
+                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext()); // Global.getAppContext()
+
+                    VCPSerialPort port = ports.get(0);
+
+                    reader.Connect(port);
+                    CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
+
+                    PluginResult.Status status = PluginResult.Status.OK;
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, "Reader Connesso"); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+
+                } catch (Exception ex){
+                    callbackContext.error(ex.getMessage());
+                }
+            }
+        });
+    }
+
+
+
+
+
+
+    /**
+     * CONFIGURAZIONE DISPOSITIVO CAEN
+     * (Direzione delle GPIO, Valori delle GPIO)
+     */
+    private void configCaen(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                int GpioConfig = 0x0; // 0 = INPUT, 1 = OUTPUT
+                int OutputVal = 0xf;
+
+                if (opts.has("gpioConfig")) {
+                    Object o_gpio = opts.opt("gpioConfig"); //can be an integer Number or a hex String
+                    GpioConfig = o_gpio instanceof Number ? ((Number) o_gpio).intValue() : Integer.parseInt((String) o_gpio, 16);
+                }
+
+                if (opts.has("outputVal")) {
+                    Object o_ov = opts.opt("outputVal"); //can be an integer Number or a hex String
+                    OutputVal = o_ov instanceof Number ? ((Number) o_ov).intValue() : Integer.parseInt((String) o_ov, 16);
+                }
+
+                try {
+                    Log.d(TAG, "Avvio il settaggio del CAEN!");
+
+                    // Definisco quali GPIO sono di ingresso e quali di uscita
+                    reader.SetIODIRECTION(GpioConfig);
+
+                    // Definisco il livello logico per i pin di uscita
+                    reader.SetIO(OutputVal);
+
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, "Settaggio terminato"); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+
+                } catch (Exception ex){
+                    Log.d(TAG, "Errore settaggio CAEN!");
+                    callbackContext.error(ex.getMessage());
+                }
+            }
+        });
+    }
+
+
+
+    /**
+     * WAIT RFID
+     * Attende l'attivazione di una GPIO e legge i tag RFID
+     */
+    private void waitRfid(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                
+                // Impostazione variabili parametriche
+                if (opts.has("readRfidDuration")) {
+                    Object o_dur = opts.opt("readRfidDuration");
+                    readRfidDuration = (Number) o_dur).intValue();
+
+                    if(readRfidDuration <= 0){
+                        readRfidDuration = 1000;
+                    }
+                }
+
+                if (opts.has("Input1Antennas")) {
+                    Object o_in1 = opts.opt("Input1Antennas"); //can be an integer Number or a hex String
+                    Input1Antennas = o_in1 instanceof Number ? ((Number) o_in1).intValue() : Integer.parseInt((String) o_in1, 16);
+
+                    if(Input1Antennas < 0 || Input1Antennas > 15){
+                        Input1Antennas = 0;
+                    }
+                }
+
+                if (opts.has("Input2Antennas")) {
+                    Object o_in2 = opts.opt("Input2Antennas"); //can be an integer Number or a hex String
+                    Input2Antennas = o_in2 instanceof Number ? ((Number) o_in2).intValue() : Integer.parseInt((String) o_in2, 16);
+
+                    if(Input2Antennas < 0 || Input2Antennas > 15){
+                        Input2Antennas = 0;
+                    }
+                }
+
+                if (opts.has("Input3Antennas")) {
+                    Object o_in3 = opts.opt("Input3Antennas"); //can be an integer Number or a hex String
+                    Input3Antennas = o_in3 instanceof Number ? ((Number) o_in3).intValue() : Integer.parseInt((String) o_in3, 16);
+
+                    if(Input3Antennas < 0 || Input3Antennas > 15){
+                        Input3Antennas = 0;
+                    }
+                }
+
+
+
+
+
+                
+                try {
+                    Log.d(TAG, "Avvio la lettura delle GPIO!");
+
+                    // Leggo il valore dei GPIO
+                    int InputVal = 0x0;
+                    InputVal = reader.GetIO();
+
+                    new GpioPollong().execute();
+
+
+                    //PluginResult result = new PluginResult(PluginResult.Status.OK, InputVal); // ListArr.toString()
+                    //callbackContext.sendPluginResult(result);
+
+                } catch (Exception ex){
+                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+                }
+            }
+        });
+    }
+
+
+
+    /**
+     * LETTURA STATO GPIO
+     */
+    private void readGpio(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+
+                try {
+                    Log.d(TAG, "Avvio la lettura delle GPIO!");
+                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext());
+                    VCPSerialPort port = ports.get(0);
+                    CAENRFIDReader reader = new CAENRFIDReader();
+                    reader.Connect(port);
+
+                    // Leggo il valore dei GPIO
+                    int InputVal = 0x0;
+                    InputVal = reader.GetIO();
+
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, InputVal); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+
+                } catch (Exception ex){
+                    //callbackContext.error(ex); // .getMessage()
+
+                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+                }
+            }
+        });
+    }
+
+
+
+
+
+    /**
+     * LETTURA TAG
      */
     private void readTag(final JSONObject opts, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
@@ -521,42 +582,7 @@ public class MaeRfid extends CordovaPlugin {
         });
     }
 
-    private void connect(final JSONObject opts, final CallbackContext callbackContext) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-
-                int src = 0;
-                if (opts.has("source")) {
-                    Object o_src = opts.opt("source"); //can be an integer Number or a hex String
-                    src = o_src instanceof Number ? ((Number) o_src).intValue() : Integer.parseInt((String) o_src, 16);
-
-                    if(src < 0 || src > 3){
-                        src = 0;
-                    }
-                }
-
-                String caen_src = "Source_" + src; // ex: Source_0 for antenna 0
-
-                try {
-                    Log.d(TAG, "Avvio apertura porta seriale!");
-                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext()); // Global.getAppContext()
-
-                    VCPSerialPort port = ports.get(0);
-
-                    reader.Connect(port);
-                    CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
-
-                    PluginResult.Status status = PluginResult.Status.OK;
-
-                    PluginResult result = new PluginResult(PluginResult.Status.OK, "Reader Connesso"); // ListArr.toString()
-                    callbackContext.sendPluginResult(result);
-
-                } catch (Exception ex){
-                    callbackContext.error(ex.getMessage());
-                }
-            }
-        });
-    }
+    
 
 
     /*
