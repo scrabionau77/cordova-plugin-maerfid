@@ -122,6 +122,7 @@ public class MaeRfid extends CordovaPlugin {
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
         Log.d(TAG, "ACTION: " + action);
         JSONObject arg_object = args.optJSONObject(0);
+        this.callbackContext = callbackContext;
 
         if(ACTION_CONFIG.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
