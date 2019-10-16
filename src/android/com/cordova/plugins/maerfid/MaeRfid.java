@@ -400,17 +400,11 @@ public class MaeRfid extends CordovaPlugin {
 
                 try {
                     Log.d(TAG, "Avvio apertura porta seriale!");
-                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext()); // Global.getAppContext()
-
-                    VCPSerialPort port = ports.get(0);
-                    CAENRFIDReader reader = new CAENRFIDReader();
-
-                    reader.Connect(port);
 
                     CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
 
                     CAENRFIDTag[] myTags = mySource.InventoryTag();
-                    reader.Disconnect();
+                    //reader.Disconnect();
 
                     PluginResult.Status status = PluginResult.Status.OK;
 
