@@ -80,7 +80,7 @@ public class MaeRfid extends CordovaPlugin {
     // actions definitions
     private static final String ACTION_CONFIG = "configCaen";
     private static final String ACTION_REQUEST_PERMISSION = "requestPermission";
-    private static final String ACTION_OPEN = "openSerial";
+    private static final String ACTION_READ_TAG = "readTag";
     private static final String ACTION_READ_GPIO = "readGpio";
     private static final String ACTION_CONNECT = "connect";
     private static final String ACTION_CONFIG_ASYNC = "configCaenAsync";
@@ -129,9 +129,9 @@ public class MaeRfid extends CordovaPlugin {
         } else if(ACTION_REQUEST_PERMISSION.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             requestPermission(opts, callbackContext);
-        } else if(ACTION_OPEN.equals(action)){
+        } else if(ACTION_READ_TAG.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
-            openSerial(opts, callbackContext);
+            readTag(opts, callbackContext);
         } else if(ACTION_READ_GPIO.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             readGpio(opts, callbackContext);
@@ -381,7 +381,7 @@ public class MaeRfid extends CordovaPlugin {
     /**
      * APERTURA CONNESSIONE PORTA
      */
-    private void openSerial(final JSONObject opts, final CallbackContext callbackContext) {
+    private void readTag(final JSONObject opts, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
 
@@ -621,7 +621,9 @@ public class MaeRfid extends CordovaPlugin {
                     Log.d(TAG, "AAAAA ANCORA A ZERO!");
                     InputVal = reader.GetIO();
                     if(InputVal > 0){
-                        iterate = false;
+                        //iterate = false;
+                        JSONObject jnull = new JSONObject();
+                        readTag(jnull, callbackContext);
                         Log.d(TAG, "AAAAA ESCO");
                     }
                 }

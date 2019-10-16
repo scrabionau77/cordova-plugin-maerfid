@@ -103,16 +103,16 @@ var maerfid = {
         }
         
         if (typeof errorCallback != "function") {
-            console.log("MaeRfid.openSerial failure: error callback parameter not a function");
+            console.log("MaeRfid.readTag failure: error callback parameter not a function");
             return;
         }
     
         if (typeof successCallback != "function") {
-            console.log("MaeRfid.openSerial failure: success callback parameter must be a function");
+            console.log("MaeRfid.readTag failure: success callback parameter must be a function");
             return;
         }
     
-        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'openSerial', [{'opts': opts}]);
+        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'readTag', [{'opts': opts}]);
     },
     connect: function (opts, successCallback, errorCallback) {
         if (errorCallback == null) {
