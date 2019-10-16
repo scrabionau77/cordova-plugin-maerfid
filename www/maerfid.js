@@ -113,7 +113,54 @@ var maerfid = {
         }
     
         cordova.exec(successCallback, errorCallback, 'MaeRfid', 'openSerial', [{'opts': opts}]);
+    },
+    connect: function (opts, successCallback, errorCallback) {
+        if (errorCallback == null) {
+            errorCallback = function () {
+            };
+        }
+        if (typeof opts === 'function') {  //user did not pass opts
+            errorCallback = successCallback;
+            successCallback = opts;
+            opts = {};
+        }
+        
+        if (typeof errorCallback != "function") {
+            console.log("MaeRfid.connect failure: error callback parameter not a function");
+            return;
+        }
+    
+        if (typeof successCallback != "function") {
+            console.log("MaeRfid.connect failure: success callback parameter must be a function");
+            return;
+        }
+    
+        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'connect', [{'opts': opts}]);
+    },
+    configCaenAsync: function (opts, successCallback, errorCallback) {
+        if (errorCallback == null) {
+            errorCallback = function () {
+            };
+        }
+        if (typeof opts === 'function') {  //user did not pass opts
+            errorCallback = successCallback;
+            successCallback = opts;
+            opts = {};
+        }
+        
+        if (typeof errorCallback != "function") {
+            console.log("MaeRfid.configCaenAsync failure: error callback parameter not a function");
+            return;
+        }
+    
+        if (typeof successCallback != "function") {
+            console.log("MaeRfid.configCaenAsync failure: success callback parameter must be a function");
+            return;
+        }
+    
+        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'configCaenAsync', [{'opts': opts}]);
     }
+
 
 }
 

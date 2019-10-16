@@ -52,6 +52,7 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.os.AsyncTask;
 import android.util.Base64;
 import android.util.Log;
 import android.app.Activity;
@@ -78,10 +79,11 @@ public class MaeRfid extends CordovaPlugin {
 
     // actions definitions
     private static final String ACTION_CONFIG = "configCaen";
-    private static final String ACTION_READ_CONFIG = "readConfig";
     private static final String ACTION_REQUEST_PERMISSION = "requestPermission";
     private static final String ACTION_OPEN = "openSerial";
     private static final String ACTION_READ_GPIO = "readGpio";
+    private static final String ACTION_CONNECT = "connect";
+    private static final String ACTION_CONFIG_ASYNC = "configAsync";
     
     
 
@@ -95,7 +97,7 @@ public class MaeRfid extends CordovaPlugin {
 
     private JSONArray requestArgs;
     private CallbackContext callbackContext;
-
+    private CAENRFIDReader reader = new CAENRFIDReader();
 
     /**
      * Constructor.
@@ -132,8 +134,12 @@ public class MaeRfid extends CordovaPlugin {
         } else if(ACTION_READ_GPIO.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             readGpio(opts, callbackContext);
-        } else if(ACTION_READ_CONFIG.equals(action)){
-            readConfig({}, callbackContext);
+        } else if(ACTION_CONNECT.equals(action)){
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            connect(opts, callbackContext);
+        } else if(ACTION_CONFIG_ASYNC.equals(action)){
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            configCaenAsync(opts, callbackContext);
         } else {
             return false;
         }
@@ -178,6 +184,8 @@ public class MaeRfid extends CordovaPlugin {
                     
                     // Definisco il livello logico per i pin di uscita
                     reader.SetIO(OutputVal);
+
+
                     
                     PluginResult result = new PluginResult(PluginResult.Status.OK, "Settaggio terminato"); // ListArr.toString()
                     callbackContext.sendPluginResult(result);
@@ -190,39 +198,41 @@ public class MaeRfid extends CordovaPlugin {
         });
     }
 
-
-
-
-    /**
-     * LETTURA CONFIGURAZIONE DISPOSITIVO CAEN
-     */
-    private void readConfig(final JSONObject opts, final CallbackContext callbackContext) {
+    private void configCaenAsync(final JSONObject opts, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
+                int GpioConfig = 0x0; // 0 = INPUT, 1 = OUTPUT
+                int OutputVal = 0xf;
+
+                if (opts.has("gpioConfig")) {
+                    Object o_gpio = opts.opt("gpioConfig"); //can be an integer Number or a hex String
+                    GpioConfig = o_gpio instanceof Number ? ((Number) o_gpio).intValue() : Integer.parseInt((String) o_gpio, 16);
+                }
+
+                if (opts.has("outputVal")) {
+                    Object o_ov = opts.opt("outputVal"); //can be an integer Number or a hex String
+                    OutputVal = o_ov instanceof Number ? ((Number) o_ov).intValue() : Integer.parseInt((String) o_ov, 16);
+                }
+
                 try {
-                    Log.d(TAG, "Avvio lettura configurazione CAEN!");
-                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext());
-                    VCPSerialPort port = ports.get(0);
+                    Log.d(TAG, "Avvio il settaggio del CAEN!");
 
-                    CAENRFIDReader reader = new CAENRFIDReader();
-                    
-                    reader.Connect(port);
+                    // Definisco quali GPIO sono di ingresso e quali di uscita
+                    reader.SetIODIRECTION(GpioConfig);
 
-                    // ricavo la configurazione degli IO
-                    int IODirection = reader.GetIODirection();
-                    
-                    PluginResult result = new PluginResult(PluginResult.Status.OK, IODirection);
+                    // Definisco il livello logico per i pin di uscita
+                    reader.SetIO(OutputVal);
+
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, "Settaggio terminato"); // ListArr.toString()
                     callbackContext.sendPluginResult(result);
 
                 } catch (Exception ex){
-                    Log.d(TAG, "Errore lettura settaggio CAEN!");
+                    Log.d(TAG, "Errore settaggio CAEN!");
                     callbackContext.error(ex.getMessage());
                 }
             }
         });
     }
-
-
 
 
     /**
@@ -365,7 +375,6 @@ public class MaeRfid extends CordovaPlugin {
                     reader.Connect(port);
 
                     CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
-                    //mySource.addCAENRFIDEventListener();
 
                     CAENRFIDTag[] myTags = mySource.InventoryTag();
                     reader.Disconnect();
@@ -418,7 +427,42 @@ public class MaeRfid extends CordovaPlugin {
         });
     }
 
+    private void connect(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
 
+                int src = 0;
+                if (opts.has("source")) {
+                    Object o_src = opts.opt("source"); //can be an integer Number or a hex String
+                    src = o_src instanceof Number ? ((Number) o_src).intValue() : Integer.parseInt((String) o_src, 16);
+
+                    if(src < 0 || src > 3){
+                        src = 0;
+                    }
+                }
+
+                String caen_src = "Source_" + src; // ex: Source_0 for antenna 0
+
+                try {
+                    Log.d(TAG, "Avvio apertura porta seriale!");
+                    List<VCPSerialPort> ports = VCPSerialPort.findVCPDevice(cordova.getActivity().getApplication().getApplicationContext()); // Global.getAppContext()
+
+                    VCPSerialPort port = ports.get(0);
+
+                    reader.Connect(port);
+                    CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
+
+                    PluginResult.Status status = PluginResult.Status.OK;
+
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, "Reader Connesso"); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+
+                } catch (Exception ex){
+                    callbackContext.error(ex.getMessage());
+                }
+            }
+        });
+    }
 
 
     /*
@@ -519,4 +563,63 @@ public class MaeRfid extends CordovaPlugin {
 
 
 
+
+
+
+
+    private class BackgroundTask extends AsyncTask<Void, Integer, String>
+    {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.d(TAG, "AAAAA PRE EXECUTE");
+            //progress.setProgress(0);
+            //progress.show();
+        }
+        @Override
+        protected String doInBackground(Void... arg0)
+        {
+            Log.d(TAG, "AAAAA DO IN BG");
+            try
+            {
+                for(int i=0;i<10;i++)
+                {
+                    publishProgress(new Integer[]{i*10});
+                    Thread.sleep(1200);
+                }
+            }
+            catch (InterruptedException e)
+            {}
+            return "Lavoro Terminato!";
+        }
+        @Override
+        protected void onProgressUpdate(Integer... values)
+        {
+            Log.d(TAG, "AAAAA ON UPDATE");
+            super.onProgressUpdate(values);
+            //progress.setProgress(values[0].intValue());
+        }
+        @Override
+        protected void onPostExecute(String result)
+        {
+            Log.d(TAG, "AAAAA ON POST EXECUTE");
+            super.onPostExecute(result);
+            //progress.dismiss();
+            //Toast.makeText(MainActivity.this, result,	Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
+
+
+
+
 }
+
+
+
+
+
+
+
