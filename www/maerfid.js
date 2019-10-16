@@ -6,7 +6,7 @@
  */
 
 var maerfid = {
-    configCaen: function (opts, successCallback, errorCallback) {
+    configGpioCaen: function (opts, successCallback, errorCallback) {
         if (typeof opts === 'function') {  //user did not pass opts
             console.log("MaeRfid.configCaen failure: options parameter is required!");
             return;
@@ -30,7 +30,7 @@ var maerfid = {
 
         cordova.exec(successCallback, errorCallback, 'MaeRfid', 'configCaen', [{'opts': opts}]);
     },
-    readConfig: function (opts, successCallback, errorCallback) {
+    readGpioConfig: function (opts, successCallback, errorCallback) {
         opts = {}; // not used for now!
         if (errorCallback == null) {
             errorCallback = function () {
@@ -49,7 +49,7 @@ var maerfid = {
     
         cordova.exec(successCallback, errorCallback, 'MaeRfid', 'readGpio', [{'opts': opts}]);
     },
-    readGpio: function (opts, successCallback, errorCallback) {
+    readGpioValue: function (opts, successCallback, errorCallback) {
         opts = {}; // not used for now!
         if (errorCallback == null) {
             errorCallback = function () {
@@ -91,7 +91,7 @@ var maerfid = {
     
         cordova.exec(successCallback, errorCallback, 'MaeRfid', 'requestPermission', [{'opts': opts}]);
     },
-    openSerial: function (opts, successCallback, errorCallback) {
+    readRfid: function (opts, successCallback, errorCallback) {
         if (errorCallback == null) {
             errorCallback = function () {
             };

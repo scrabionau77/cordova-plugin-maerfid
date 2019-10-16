@@ -24,14 +24,14 @@ The plugin creates the object `maerfid`
 
 
 ### SETUP GPIO
-You can configure the GPIO pin. The plugin exposes method `configCaen` for this. This method needs `options` object that contains pins `direction` (input and output settings) and `value` configurations (set high/low value for output pins). Note: the value setting is ignored for bits configured as input
+You can configure the GPIO pin. The plugin exposes method `configGpioCaen` for this. This method needs `options` object that contains pins `direction` (input and output settings) and `value` configurations (set high/low value for output pins). Note: the value setting is ignored for bits configured as input
 
 ```js
 var options = {
     gpioConfig: 0x3, // Hex value. 0 = INPUT, 1 = OUTPUT
     outputVal: 0x0  // Hex value. 0 = Low output value, 1 = High output value
 };
-maerfid.configCaen(options, function(success){}, function(error){});
+maerfid.configGpioCaen(options, function(success){}, function(error){});
 ```
 
 
@@ -81,11 +81,20 @@ The following table show `outputVal` value and Output pin value (remember: the v
 
 
 
-### READ GPIO
-You can read GPIO pin. The plugin exposes method `readGpio` for this. Note: during reading, the pins configured as output are read and their value corresponds to the one set previously with the `configCaen` method.
+### READ GPIO CONFIG
+You can read GPIO direction settings. The plugin exposes method `readConfig` for this. Note: by default, all GPIO pins are set as input.
 
 ```js
-maerfid.readGpio({}, function(success){}, function(error){});
+maerfid.readGpioConfig({}, function(success){}, function(error){});
+```
+
+
+
+### READ GPIO VALUES
+You can read GPIO pin value. The plugin exposes method `readGpioValue` for this. Note: during reading, the pins configured as output are read and their value corresponds to the one set previously with the `configGpioCaen` method.
+
+```js
+maerfid.readGpioValue({}, function(success){}, function(error){});
 ```
 
 
@@ -101,7 +110,7 @@ maerfid.rerequestPermissionadGpio({
         driver: 'CdcAcmSerialDriver'
     },
     function(success){
-        // now you can call openSerial method
+        // now you can call readRfid method
     },
     function(error){}
 );
@@ -110,10 +119,10 @@ maerfid.rerequestPermissionadGpio({
 
 
 ### RFID READING
-After obtaining the communication permission, you can call this method to read the RFIDs picked up by the antenna. The plugin esposes `openSerial` method for this. This method needs `options` object that contains `src` number (indicating the antenna to read from).
+After obtaining the communication permission, you can call this method to read the RFIDs picked up by the antenna. The plugin esposes `readRfid` method for this. This method needs `options` object that contains `src` number (indicating the antenna to read from).
 
 ```js
-maerfid.openSerial({
+maerfid.readRfid({
         src: 0 // 0 to 3 (Caen Hadron has up to 4 antennas)
     },
     function(success){
