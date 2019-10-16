@@ -285,12 +285,13 @@ public class MaeRfid extends CordovaPlugin {
                     int InputVal = 0x0;
                     InputVal = reader.GetIO();
 
+                    new GpioPollong().execute();
+
                     PluginResult result = new PluginResult(PluginResult.Status.OK, InputVal); // ListArr.toString()
                     callbackContext.sendPluginResult(result);
 
                 } catch (Exception ex){
                     //callbackContext.error(ex); // .getMessage()
-                    new GpioPollong().execute();
 
                     PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()
                     callbackContext.sendPluginResult(result);
