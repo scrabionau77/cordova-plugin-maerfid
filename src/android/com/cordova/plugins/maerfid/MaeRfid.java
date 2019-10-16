@@ -616,9 +616,7 @@ public class MaeRfid extends CordovaPlugin {
                     Log.d(TAG, "AAAAA ANCORA A ZERO!");
                     InputVal = reader.GetIO();
                     if(InputVal > 0){
-                        //iterate = false;
-                        JSONObject jnull = new JSONObject();
-                        readTag(jnull, callbackContext);
+                        iterate = false;
                         Log.d(TAG, "AAAAA ESCO");
                     }
                 }
@@ -639,6 +637,11 @@ public class MaeRfid extends CordovaPlugin {
         protected void onPostExecute(String result)
         {
             Log.d(TAG, "AAAAA ON POST EXECUTE");
+
+            JSONObject jnull = new JSONObject();
+            readTag(jnull, callbackContext);
+
+
             super.onPostExecute(result);
             //progress.dismiss();
             //Toast.makeText(MainActivity.this, result,	Toast.LENGTH_SHORT).show();
