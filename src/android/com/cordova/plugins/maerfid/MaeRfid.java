@@ -704,7 +704,7 @@ public class MaeRfid extends CordovaPlugin {
             Log.d(TAG, "AAAAA ON POST EXECUTE");
 
             JSONObject jnull = new JSONObject();
-            readTag(jnull, callbackContext);
+            readTagLoop(jnull, callbackContext);
 
 
             super.onPostExecute(result);
