@@ -84,6 +84,7 @@ public class MaeRfid extends CordovaPlugin {
     private static final String ACTION_READ_GPIO = "readGpio";
     private static final String ACTION_CONNECT = "connect";
     private static final String ACTION_CONFIG_ASYNC = "configCaenAsync";
+    private static final String ACTION_READ_GPIO_ASYNC = "readGpioAsync";
     
     
 
@@ -140,6 +141,9 @@ public class MaeRfid extends CordovaPlugin {
         } else if(ACTION_CONFIG_ASYNC.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             configCaenAsync(opts, callbackContext);
+        } else if(ACTION_READ_GPIO_ASYNC.equals(action)){
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            readGpioAsync(opts, callbackContext);
         } else {
             return false;
         }
@@ -266,6 +270,33 @@ public class MaeRfid extends CordovaPlugin {
         });
     }
 
+
+
+
+    
+    private void readGpioAsync(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+
+                try {
+                    Log.d(TAG, "Avvio la lettura delle GPIO!");
+
+                    // Leggo il valore dei GPIO
+                    int InputVal = 0x0;
+                    InputVal = reader.GetIO();
+
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, InputVal); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+
+                } catch (Exception ex){
+                    //callbackContext.error(ex); // .getMessage()
+
+                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+                }
+            }
+        });
+    }
 
 
 
