@@ -68,7 +68,7 @@ import com.caen.VCPSerialPort.VCPSerialPort;
 
 
 public class MaeRfid extends CordovaPlugin {
-    
+
     public static final int REQUEST_CODE = 0x0ba7c;
     private static final String CANCELLED = "cancelled";
     private static final String FORMAT = "format";
@@ -85,8 +85,8 @@ public class MaeRfid extends CordovaPlugin {
     private static final String ACTION_CONNECT = "connect";
     private static final String ACTION_CONFIG_ASYNC = "configCaenAsync";
     private static final String ACTION_READ_GPIO_ASYNC = "readGpioAsync";
-    
-    
+
+
 
     // NUOVA IMPLEMENTAZIONE
     // UsbManager instance to deal with permission and opening
@@ -111,13 +111,13 @@ public class MaeRfid extends CordovaPlugin {
 
 
     /**
-	 * Overridden execute method
-	 * @param action the string representation of the action to execute
-	 * @param args
-	 * @param callbackContext the cordova {@link CallbackContext}
-	 * @return true if the action exists, false otherwise
-	 * @throws JSONException if the args parsing fails
-	 */
+     * Overridden execute method
+     * @param action the string representation of the action to execute
+     * @param args
+     * @param callbackContext the cordova {@link CallbackContext}
+     * @return true if the action exists, false otherwise
+     * @throws JSONException if the args parsing fails
+     */
     @Override
     public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
         Log.d(TAG, "ACTION: " + action);
@@ -180,17 +180,17 @@ public class MaeRfid extends CordovaPlugin {
                     VCPSerialPort port = ports.get(0);
 
                     CAENRFIDReader reader = new CAENRFIDReader();
-                    
+
                     reader.Connect(port);
 
                     // Definisco quali GPIO sono di ingresso e quali di uscita
                     reader.SetIODIRECTION(GpioConfig);
-                    
+
                     // Definisco il livello logico per i pin di uscita
                     reader.SetIO(OutputVal);
 
 
-                    
+
                     PluginResult result = new PluginResult(PluginResult.Status.OK, "Settaggio terminato"); // ListArr.toString()
                     callbackContext.sendPluginResult(result);
 
@@ -273,7 +273,7 @@ public class MaeRfid extends CordovaPlugin {
 
 
 
-    
+
     private void readGpioAsync(final JSONObject opts, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
@@ -290,6 +290,7 @@ public class MaeRfid extends CordovaPlugin {
 
                 } catch (Exception ex){
                     //callbackContext.error(ex); // .getMessage()
+                    new GpioPollong().execute();
 
                     PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()
                     callbackContext.sendPluginResult(result);
@@ -598,7 +599,7 @@ public class MaeRfid extends CordovaPlugin {
 
 
 
-    private class BackgroundTask extends AsyncTask<Void, Integer, String>
+    private class GpioPollong extends AsyncTask<Void, Integer, String>
     {
         @Override
         protected void onPreExecute() {
@@ -611,17 +612,21 @@ public class MaeRfid extends CordovaPlugin {
         protected String doInBackground(Void... arg0)
         {
             Log.d(TAG, "AAAAA DO IN BG");
-            try
-            {
-                for(int i=0;i<10;i++)
-                {
-                    publishProgress(new Integer[]{i*10});
-                    Thread.sleep(1200);
+            Boolean iterate = true;
+            int InputVal = 0x0;
+            try {
+                InputVal = reader.GetIO();
+
+                while(iterate){
+                    if(InputVal > 0){
+                        iterate = false;
+                    }
                 }
             }
-            catch (InterruptedException e)
-            {}
-            return "Lavoro Terminato!";
+            catch (Exception e) {}
+
+
+            return "Valore estratto: " +  InputVal;
         }
         @Override
         protected void onProgressUpdate(Integer... values)
