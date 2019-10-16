@@ -83,7 +83,7 @@ public class MaeRfid extends CordovaPlugin {
     private static final String ACTION_OPEN = "openSerial";
     private static final String ACTION_READ_GPIO = "readGpio";
     private static final String ACTION_CONNECT = "connect";
-    private static final String ACTION_CONFIG_ASYNC = "configAsync";
+    private static final String ACTION_CONFIG_ASYNC = "configCaenAsync";
     
     
 
