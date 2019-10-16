@@ -133,15 +133,17 @@ This method requires the `options` parameter. With this parameter we can choose:
 2) How long to read the RFIDs after applying the positive voltage to the GPIO input.
 
 The reading is repeated several times in the time frame set in the options parameter. When finished, the list of read tags is returned.
-Note: The list of read tags is filtered to prevent the same tag from being repeated in the returned list.
-Note2: The method stops when the result is returned. He must therefore be called back to start further reading.
+The list of read tags is filtered to prevent the same tag from being repeated in the returned list.
+The method stops when the result is returned. Therefore it must be called back to start further reading.
 
+Note: only the GPIOs set as input will be read.
 
 IMPORTANT: Activate the reading only from the antennas actually connected to the HADRON Reader to avoid possible damage to the device.
 
 ```js
 var options = {
-    Input1Antennas: 0x3, // see below table for details
+    Input0Antennas: 0x3, // see below table for details
+    Input1Antennas: 0x3,
     Input2Antennas: 0x3,
     Input3Antennas: 0x3,
     readRfidDuration: 50000  // milliseconds
@@ -151,11 +153,10 @@ maerfid.waitRfid(options, function(success){}, function(error){});
 ```
 
 
-The following table show `Input1Antennas`, `Input2Antennas`, `Input3Antennas` values and corresponding antennas readed.
+The following table show `Input0Antennas`, `Input1Antennas`, `Input2Antennas`, `Input3Antennas` values and corresponding antennas readed.
 
 | Value      | ANT 3    | ANT 2    | ANT 1    | ANT 0    |
 |------------|:--------:|:--------:|:--------:|:--------:|
-| 0x0        |          |          |          |          |
 | 0x1        |          |          |          |   ✔     |
 | 0x2        |    |    |   ✔     |       |
 | 0x3        |    |    |  ✔ |  ✔ |

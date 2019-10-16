@@ -87,6 +87,7 @@ public class MaeRfid extends CordovaPlugin {
     private static final String ACTION_CONFIG_CAEN = "configCaen";
     private static final String ACTION_READ_GPIO_ASYNC = "readGpioAsync";
     private static final String ACTION_WAIT_RFID = "waitRfid";
+    private static final String ACTION_DISCONNECT = "disconnect";
 
 
     private UsbManager manager; // UsbManager instance to deal with permission and opening
@@ -103,6 +104,7 @@ public class MaeRfid extends CordovaPlugin {
     private Integer Input3Antennas = 0;
     private Integer readRfidDuration = 5000; // milliseconds
     private Boolean isConnected = false;
+    private Integer triggeredInput = 0;
 
 
     /**
@@ -147,17 +149,20 @@ public class MaeRfid extends CordovaPlugin {
         } else if(ACTION_READ_GPIO_ASYNC.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             readGpioAsync(opts, callbackContext);
-        } else  if(ACTION_WAIT_RFID.equals(action)){
+        } else if(ACTION_WAIT_RFID.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             waitRfid(opts, callbackContext);
-        } else{
+        } else if(ACTION_DISCONNECT.equals(action)){
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            disconnect(opts, callbackContext);
+        } else {
             return false;
         }
         return true;
     }
 
 
-    
+
 
 
 
@@ -273,7 +278,7 @@ public class MaeRfid extends CordovaPlugin {
                     VCPSerialPort port = ports.get(0);
 
                     reader.Connect(port);
-                    CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
+                    //CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
 
                     PluginResult.Status status = PluginResult.Status.OK;
                     PluginResult result = new PluginResult(PluginResult.Status.OK, "Reader Connesso"); // ListArr.toString()
@@ -340,7 +345,7 @@ public class MaeRfid extends CordovaPlugin {
     private void waitRfid(final JSONObject opts, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-                
+
                 // Impostazione variabili parametriche
                 if (opts.has("readRfidDuration")) {
                     Object o_dur = opts.opt("readRfidDuration");
@@ -351,12 +356,21 @@ public class MaeRfid extends CordovaPlugin {
                     }
                 }
 
+                if (opts.has("Input0Antennas")) {
+                    Object o_in0 = opts.opt("Input0Antennas"); //can be an integer Number or a hex String
+                    Input0Antennas = o_in0 instanceof Number ? ((Number) o_in0).intValue() : Integer.parseInt((String) o_in0, 16);
+
+                    if(Input0Antennas <= 0 || Input0Antennas > 15){
+                        callbackContext.error("Input0Antennas out of range");
+                    }
+                }
+
                 if (opts.has("Input1Antennas")) {
                     Object o_in1 = opts.opt("Input1Antennas"); //can be an integer Number or a hex String
                     Input1Antennas = o_in1 instanceof Number ? ((Number) o_in1).intValue() : Integer.parseInt((String) o_in1, 16);
 
-                    if(Input1Antennas < 0 || Input1Antennas > 15){
-                        Input1Antennas = 0;
+                    if(Input1Antennas <= 0 || Input1Antennas > 15){
+                        callbackContext.error("Input1Antennas out of range");
                     }
                 }
 
@@ -364,8 +378,8 @@ public class MaeRfid extends CordovaPlugin {
                     Object o_in2 = opts.opt("Input2Antennas"); //can be an integer Number or a hex String
                     Input2Antennas = o_in2 instanceof Number ? ((Number) o_in2).intValue() : Integer.parseInt((String) o_in2, 16);
 
-                    if(Input2Antennas < 0 || Input2Antennas > 15){
-                        Input2Antennas = 0;
+                    if(Input2Antennas <= 0 || Input2Antennas > 15){
+                        callbackContext.error("Input2Antennas out of range");
                     }
                 }
 
@@ -373,28 +387,100 @@ public class MaeRfid extends CordovaPlugin {
                     Object o_in3 = opts.opt("Input3Antennas"); //can be an integer Number or a hex String
                     Input3Antennas = o_in3 instanceof Number ? ((Number) o_in3).intValue() : Integer.parseInt((String) o_in3, 16);
 
-                    if(Input3Antennas < 0 || Input3Antennas > 15){
-                        Input3Antennas = 0;
+                    if(Input3Antennas <= 0 || Input3Antennas > 15){
+                        callbackContext.error("Input3Antennas out of range");
                     }
                 }
 
 
-
-
-
-                
                 try {
                     Log.d(TAG, "Avvio la lettura delle GPIO!");
 
-                    // Leggo il valore dei GPIO
-                    int InputVal = 0x0;
-                    InputVal = reader.GetIO();
-
+                    // avvio il loop di lettura delle GPIO
                     new GpioPollong().execute();
 
+                } catch (Exception ex){
+                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage());
+                    callbackContext.sendPluginResult(result);
+                }
+            }
+        });
+    }
 
-                    //PluginResult result = new PluginResult(PluginResult.Status.OK, InputVal); // ListArr.toString()
-                    //callbackContext.sendPluginResult(result);
+
+
+
+    /**
+     * LETTURA TAG IN LOOP
+     */
+    private void readTagLoop(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+
+                String caen_src = "Source_" + triggeredInput; // ex: Source_0 for antenna 0
+
+                try {
+                    Log.d(TAG, "Avvio lettura tag!");
+
+                    CAENRFIDLogicalSource mySource = reader.GetSource(caen_src); // seleziono l'antenna
+
+                    // Loop
+                    long t= System.currentTimeMillis();
+                    long end = t + readRfidDuration;
+                    
+
+                    org.json.JSONObject JsonOut = new org.json.JSONObject();
+                    while(System.currentTimeMillis() < end) {
+                        CAENRFIDTag[] myTags = mySource.InventoryTag();
+
+                        if(myTags != null && myTags.length > 0){
+                            for (int x= 0; x< myTags.length; x++) {
+                                CAENRFIDTag tag = myTags[x];
+
+                                org.json.JSONObject obj = new org.json.JSONObject();
+                                obj.put("Antenna", tag.GetAntenna());
+                                obj.put("Id", bytesToHex(tag.GetId()));
+                                obj.put("Length", tag.GetLength());
+                                obj.put("RSSI", tag.GetRSSI());
+                                obj.put("TID", tag.GetTID());
+                                obj.put("TimeStamp", tag.GetTimeStamp());
+
+                                JsonOut.put("tag_"+x, obj);
+                            }
+                        }
+
+
+                        Thread.sleep( 10 );
+                    }
+
+                    // manca il FILTER "ARRAY" x togliere i doppioni
+
+                    PluginResult.Status status = PluginResult.Status.OK;
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, JsonOut.toString()); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+
+                } catch (Exception ex){
+                    callbackContext.error(ex.getMessage());
+                }
+            }
+        });
+    }
+
+
+
+    /**
+     * DISCONNESSIONE
+     */
+    private void disconnect(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+
+                try {
+                    Log.d(TAG, "Tento disconnessione!");
+                    reader.Disconnect();
+
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, "Disconnesso"); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
 
                 } catch (Exception ex){
                     PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()
@@ -403,6 +489,15 @@ public class MaeRfid extends CordovaPlugin {
             }
         });
     }
+
+
+
+
+    // TO DO!
+
+
+
+
 
 
 
@@ -518,71 +613,6 @@ public class MaeRfid extends CordovaPlugin {
     }
 
 
-
-    private void readTagLoop(final JSONObject opts, final CallbackContext callbackContext) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-
-                int src = 0;
-                if (opts.has("source")) {
-                    Object o_src = opts.opt("source"); //can be an integer Number or a hex String
-                    src = o_src instanceof Number ? ((Number) o_src).intValue() : Integer.parseInt((String) o_src, 16);
-
-                    if(src < 0 || src > 3){
-                        src = 0;
-                    }
-                }
-
-                String caen_src = "Source_" + src; // ex: Source_0 for antenna 0
-
-
-                try {
-                    Log.d(TAG, "Avvio apertura porta seriale!");
-
-                    CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
-
-                    // Loop
-                    long t= System.currentTimeMillis();
-                    long end = t + 5000;
-
-                    org.json.JSONObject JsonOut = new org.json.JSONObject();
-                    while(System.currentTimeMillis() < end) {
-                        CAENRFIDTag[] myTags = mySource.InventoryTag();
-
-                        if(myTags != null && myTags.length > 0){
-                            for (int x= 0; x< myTags.length; x++) {
-                                CAENRFIDTag tag = myTags[x];
-
-                                org.json.JSONObject obj = new org.json.JSONObject();
-                                obj.put("Antenna", tag.GetAntenna());
-                                obj.put("Id", bytesToHex(tag.GetId()));
-                                obj.put("Length", tag.GetLength());
-                                obj.put("RSSI", tag.GetRSSI());
-                                obj.put("TID", tag.GetTID());
-                                obj.put("TimeStamp", tag.GetTimeStamp());
-    
-                                JsonOut.put("tag_"+x, obj);
-                            }
-                        }
-
-
-                        Thread.sleep( 10 );
-                    }
-
-                    // manca il FILTER "ARRAY" x togliere i doppioni
-
-                    PluginResult.Status status = PluginResult.Status.OK;
-                    PluginResult result = new PluginResult(PluginResult.Status.OK, JsonOut.toString()); // ListArr.toString()
-                    callbackContext.sendPluginResult(result);
-
-                } catch (Exception ex){
-                    callbackContext.error(ex.getMessage());
-                }
-            }
-        });
-    }
-
-    
 
 
     /*
@@ -700,17 +730,42 @@ public class MaeRfid extends CordovaPlugin {
         protected String doInBackground(Void... arg0)
         {
             Log.d(TAG, "AAAAA DO IN BG");
+
+            // estraggo la configurazione (direzione) dei GPIO
+            Integer InputSetting = 0xF;
+            try{
+                InputSetting = reader.GetIODirection();
+            } catch(Exception e){
+            }
+            String InputString = Integer.toString(InputSetting, 2); // converto in binario
+            
+
+
+            // CAENRFIDLogicalSource mySource = reader.GetSource(caen_src); // seleziona l'antenna
             Boolean iterate = true;
             int InputVal = 0x0;
             try {
-                
+                Integer n = 0;
                 while(iterate){
                     Log.d(TAG, "AAAAA ANCORA A ZERO!");
+
+                    char str_index = InputString.charAt(n);
+                    Integer index = Integer.parseInt(String.valueOf(str_index)); // valore di configurazione del GPIO a cui sto puntando in questo ciclo
+
                     InputVal = reader.GetIO();
-                    if(InputVal > 0){
+                    String InputValString = Integer.toString(InputVal, 2); // converto in binario
+                    char str_val_index = InputString.charAt(n);
+                    Integer value = Integer.parseInt(String.valueOf(str_index)); // valore d'ingresso del GPIO a cui sto puntando in questo ciclo
+
+                    if(index == 0 && InputVal > 0){ // se il GPIO n-esimo è settato come ingresso e c'è una tensione d'ingresso positiva
                         iterate = false;
+                        triggeredInput = n;
                         Log.d(TAG, "AAAAA ESCO");
+                        // verrà chiamato il metodo onPostExecute che a sua volta richiamerà readTagLoop
                     }
+                    
+                    n++;
+                    if(n > 3) n = 0;
                 }
             }
             catch (Exception e) {}
