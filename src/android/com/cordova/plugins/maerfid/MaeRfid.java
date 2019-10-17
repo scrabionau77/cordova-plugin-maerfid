@@ -345,7 +345,7 @@ public class MaeRfid extends CordovaPlugin {
                 // Impostazione variabili parametriche
                 if (opts.has("readRfidDuration")) {
                     Object o_dur = opts.opt("readRfidDuration");
-                    readRfidDuration = (Number) o_dur).intValue();
+                    readRfidDuration = (Number) o_dur.intValue();
 
                     if(readRfidDuration <= 0){
                         readRfidDuration = 1000;
