@@ -780,7 +780,7 @@ public class MaeRfid extends CordovaPlugin {
                         Integer actualValue = reader.GetIO();
                         String actualValueString = Integer.toString(actualValue, 2);
                         StringBuilder plainText = new StringBuilder(actualValueString);
-                        plainText.setCharAt(buzzerPin, "1");
+                        plainText.setCharAt(buzzerPin, '1');
                         actualValue = Integer.parseInt((String) plainText.toString(), 2);
 
                         reader.SetIO(actualValue);
