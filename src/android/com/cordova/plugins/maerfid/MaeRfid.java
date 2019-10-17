@@ -645,6 +645,9 @@ public class MaeRfid extends CordovaPlugin {
     /*
     * Loop to detect trigger GPIO
     */
+    private class GpioPollong extends AsyncTask<Void, Integer, String>
+    {
+        @Override
         protected void onPreExecute() {
             super.onPreExecute();
             Log.d(TAG, "AAAAA PRE EXECUTE");
