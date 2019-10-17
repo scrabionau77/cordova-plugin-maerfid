@@ -361,7 +361,7 @@ public class MaeRfid extends CordovaPlugin {
                     Input0Antennas = o_in0 instanceof Number ? ((Number) o_in0).intValue() : Integer.parseInt((String) o_in0, 16);
 
                     if(Input0Antennas <= 0 || Input0Antennas > 15){
-                        callbackContext.error("Input0Antennas out of range: " + Input0Antennas);
+                        callbackContext.error("Input0Antennas out of range. Passed:" + Input0Antennas);
                     }
                 }
 
@@ -370,7 +370,7 @@ public class MaeRfid extends CordovaPlugin {
                     Input1Antennas = o_in1 instanceof Number ? ((Number) o_in1).intValue() : Integer.parseInt((String) o_in1, 16);
 
                     if(Input1Antennas <= 0 || Input1Antennas > 15){
-                        callbackContext.error("Input1Antennas out of range");
+                        callbackContext.error("Input1Antennas out of range. Passed:" + Input1Antennas);
                     }
                 }
 
@@ -379,7 +379,7 @@ public class MaeRfid extends CordovaPlugin {
                     Input2Antennas = o_in2 instanceof Number ? ((Number) o_in2).intValue() : Integer.parseInt((String) o_in2, 16);
 
                     if(Input2Antennas <= 0 || Input2Antennas > 15){
-                        callbackContext.error("Input2Antennas out of range");
+                        callbackContext.error("Input2Antennas out of range. Passed:" + Input2Antennas);
                     }
                 }
 
@@ -388,7 +388,7 @@ public class MaeRfid extends CordovaPlugin {
                     Input3Antennas = o_in3 instanceof Number ? ((Number) o_in3).intValue() : Integer.parseInt((String) o_in3, 16);
 
                     if(Input3Antennas <= 0 || Input3Antennas > 15){
-                        callbackContext.error("Input3Antennas out of range");
+                        callbackContext.error("Input3Antennas out of range. Passed:" + Input3Antennas);
                     }
                 }
 
@@ -481,6 +481,19 @@ public class MaeRfid extends CordovaPlugin {
 
                     // Attivo la segnalazione di avvenuta lettura
                     new Buzzer().execute();
+
+                    // Aggiungo dati utili per la verifica:
+                    JsonOut.put("Input0Antennas", Input0Antennas);
+                    JsonOut.put("Input1Antennas", Input1Antennas);
+                    JsonOut.put("Input2Antennas", Input2Antennas);
+                    JsonOut.put("Input3Antennas", Input3Antennas);
+                    JsonOut.put("readRfidDuration", readRfidDuration);
+                    JsonOut.put("isConnected", isConnected);
+                    JsonOut.put("triggeredInput", triggeredInput);
+                    JsonOut.put("activeBuzzer", activeBuzzer);
+                    JsonOut.put("buzzerDuration", buzzerDuration);
+                    JsonOut.put("buzzerPin", buzzerPin);
+
 
                     PluginResult.Status status = PluginResult.Status.OK;
                     PluginResult result = new PluginResult(PluginResult.Status.OK, JsonOut.toString()); // ListArr.toString()
