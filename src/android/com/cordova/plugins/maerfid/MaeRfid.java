@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Dictionary;
@@ -269,7 +270,7 @@ public class MaeRfid extends CordovaPlugin {
                     }
                 }
 
-                String caen_src = "Source_" + src; // ex: Source_0 for antenna 0
+                //String caen_src = "Source_" + src; // ex: Source_0 for antenna 0
 
                 try {
                     Log.d(TAG, "Avvio apertura porta seriale!");
@@ -441,12 +442,8 @@ public class MaeRfid extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
 
-                String caen_src = "Source_" + triggeredInput; // ex: Source_0 for antenna 0
-
                 try {
                     Log.d(TAG, "Avvio lettura tag!");
-
-                    CAENRFIDLogicalSource mySource = reader.GetSource(caen_src); // seleziono l'antenna
 
                     // Loop
                     long t= System.currentTimeMillis();
@@ -455,24 +452,54 @@ public class MaeRfid extends CordovaPlugin {
 
                     org.json.JSONObject JsonOut = new org.json.JSONObject();
                     while(System.currentTimeMillis() < end) {
-                        CAENRFIDTag[] myTags = mySource.InventoryTag();
 
-                        if(myTags != null && myTags.length > 0){
-                            for (int x= 0; x< myTags.length; x++) {
-                                CAENRFIDTag tag = myTags[x];
-
-                                org.json.JSONObject obj = new org.json.JSONObject();
-                                obj.put("Antenna", tag.GetAntenna());
-                                obj.put("Id", bytesToHex(tag.GetId()));
-                                obj.put("Length", tag.GetLength());
-                                obj.put("RSSI", tag.GetRSSI());
-                                obj.put("TID", tag.GetTID());
-                                obj.put("TimeStamp", tag.GetTimeStamp());
-
-                                JsonOut.put("tag_"+x, obj);
-                            }
+                        // devo misurare da tutte le antenne previste per l'ingresso GPIO a cui è stato applicato un livello logico alto
+                        Integer choicedIn = 0;
+                        switch (triggeredInput) {
+                            case 0:
+                                choicedIn = Input0Antennas;
+                                break;
+                            case 1:
+                                choicedIn = Input1Antennas;
+                                break;
+                            case 2:
+                                choicedIn = Input2Antennas;
+                                break;
+                            case 3:
+                                choicedIn = Input3Antennas;
+                                break;
                         }
 
+                        String choicedInBin = Integer.toString(choicedIn, 2); // converto in binario
+                        for(int a = 0; a <= 3; a++){
+                            char antIsActive = choicedInBin.charAt(a);
+                            if(antIsActive == 1){
+
+                                // Leggo i tag di questa antenna
+                                String caen_src = "Source_" + a; // ex: Source_0 for antenna 0
+                                CAENRFIDLogicalSource mySource = reader.GetSource(caen_src); // seleziono l'antenna
+
+                                CAENRFIDTag[] myTags = mySource.InventoryTag(); // leggo i tag
+
+                                if(myTags != null && myTags.length > 0){
+                                    for (int x= 0; x< myTags.length; x++) {
+                                        CAENRFIDTag tag = myTags[x];
+
+                                        org.json.JSONObject obj = new org.json.JSONObject();
+                                        obj.put("Antenna", tag.GetAntenna());
+                                        obj.put("Id", bytesToHex(tag.GetId()));
+                                        obj.put("Length", tag.GetLength());
+                                        obj.put("RSSI", tag.GetRSSI());
+                                        obj.put("TID", tag.GetTID());
+                                        obj.put("TimeStamp", tag.GetTimeStamp());
+
+                                        JsonOut.put("tag_"+x, obj);
+                                    }
+                                }
+                                Thread.sleep( 10 );
+
+                            }
+                        }
 
                         Thread.sleep( 10 );
                     }
