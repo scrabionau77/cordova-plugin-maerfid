@@ -105,6 +105,9 @@ public class MaeRfid extends CordovaPlugin {
     private Integer readRfidDuration = 5000; // milliseconds
     private Boolean isConnected = false;
     private Integer triggeredInput = 0;
+    private Boolean activeBuzzer = false;
+    private Integer buzzerDuration = 1000;
+    private Integer buzzerPin = 3;
 
 
     /**
@@ -358,7 +361,7 @@ public class MaeRfid extends CordovaPlugin {
                     Input0Antennas = o_in0 instanceof Number ? ((Number) o_in0).intValue() : Integer.parseInt((String) o_in0, 16);
 
                     if(Input0Antennas <= 0 || Input0Antennas > 15){
-                        callbackContext.error("Input0Antennas out of range");
+                        callbackContext.error("Input0Antennas out of range: " + Input0Antennas);
                     }
                 }
 
@@ -388,6 +391,30 @@ public class MaeRfid extends CordovaPlugin {
                         callbackContext.error("Input3Antennas out of range");
                     }
                 }
+
+                if (opts.has("activeBuzzer")) {
+                    Object bz = opts.opt("activeBuzzer"); // boolean
+                    activeBuzzer = Boolean.valueOf(bz);
+                }
+
+                if (opts.has("buzzerDuration")) {
+                    Object b_dur = opts.opt("buzzerDuration");
+                    buzzerDuration = ((Number) b_dur).intValue();
+
+                    if(buzzerDuration <= 0){
+                        buzzerDuration = 1000;
+                    }
+                }
+
+                if (opts.has("buzzerPin")) {
+                    Object b_pin = opts.opt("buzzerPin");
+                    buzzerPin = ((Number) b_pin).intValue();
+
+                    if(buzzerPin <= 0 || buzzerPin > 3){
+                        buzzerPin = 3;
+                    }
+                }
+
 
 
                 try {
@@ -424,7 +451,7 @@ public class MaeRfid extends CordovaPlugin {
                     // Loop
                     long t= System.currentTimeMillis();
                     long end = t + readRfidDuration;
-                    
+
 
                     org.json.JSONObject JsonOut = new org.json.JSONObject();
                     while(System.currentTimeMillis() < end) {
@@ -647,8 +674,8 @@ public class MaeRfid extends CordovaPlugin {
 
 
     /*
-    * Loop to detect trigger GPIO
-    */
+     * Loop to detect trigger GPIO
+     */
     private class GpioPollong extends AsyncTask<Void, Integer, String>
     {
         @Override
@@ -670,7 +697,7 @@ public class MaeRfid extends CordovaPlugin {
             } catch(Exception e){
             }
             String InputString = Integer.toString(InputSetting, 2); // converto in binario
-            
+
 
             Boolean iterate = true;
             int InputVal = 0x0;
@@ -693,7 +720,7 @@ public class MaeRfid extends CordovaPlugin {
                         Log.d(TAG, "AAAAA ESCO");
                         // verrà chiamato il metodo onPostExecute che a sua volta richiamerà readTagLoop
                     }
-                    
+
                     n++;
                     if(n > 3) n = 0;
                 }
@@ -728,28 +755,63 @@ public class MaeRfid extends CordovaPlugin {
 
 
     /*
-    * Loop to detect trigger GPIO
-    */
+     * Loop to detect trigger GPIO
+     */
     private class Buzzer extends AsyncTask<Void, Integer, String>
     {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.d(TAG, "AAAAA ATTIVO LA SEGNALAZIONE D'USCITA");
-            try{
-                reader.SetIO(0x8);
+
+            if(activeBuzzer){
+                // estraggo la configurazione (direzione) dei GPIO
+                Integer InputSetting = 0xF;
+                try{
+                    InputSetting = reader.GetIODirection();
+                } catch(Exception e){}
+                String InputString = Integer.toString(InputSetting, 2); // converto in binario
+
+                // verifico se il pin a cui è assegnato il buzzer è effettivamente di uscita
+                char valueBuzzerActivation = InputString.charAt(buzzerPin);
+
+                if(valueBuzzerActivation == 1){
+                    try{
+                        Log.d(TAG, "AAAAA ATTIVO LA SEGNALAZIONE D'USCITA");
+                        Integer actualValue = reader.GetIO();
+                        String actualValueString = Integer.toString(actualValue, 2);
+                        StringBuilder plainText = new StringBuilder(actualValueString);
+                        plainText.setCharAt(buzzerPin, "1");
+                        actualValue = Integer.parseInt((String) plainText.toString(), 2);
+
+                        reader.SetIO(actualValue);
+                    }
+                    catch(Exception e){}
+                }
             }
-            catch(Exception e){}
+
         }
         @Override
         protected String doInBackground(Void... arg0)
         {
-            
-            try{
-                Thread.sleep(1000);
-                reader.SetIO(0x0);
+
+            if(activeBuzzer){
+                try{
+                    Thread.sleep(buzzerDuration);
+
+                    // recupero l'attuale valore degli ingressi e poi modifico il valore del pin di buzzer
+                    Integer actualValue = reader.GetIO();
+
+                    String actualValueString = Integer.toString(actualValue, 2);
+                    StringBuilder plainText = new StringBuilder(actualValueString);
+
+                    plainText.setCharAt(buzzerPin, '0');
+                    actualValue = Integer.parseInt((String) plainText.toString(), 2);
+
+                    reader.SetIO(actualValue);
+                }
+                catch(Exception e){}
             }
-            catch (Exception e){}
+
 
             Log.d(TAG, "AAAAA DISATTIVO LA SEGNALAZIONE D'USCITA");
             return "";
