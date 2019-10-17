@@ -394,7 +394,7 @@ public class MaeRfid extends CordovaPlugin {
 
                 if (opts.has("activeBuzzer")) {
                     Object bz = opts.opt("activeBuzzer"); // boolean
-                    activeBuzzer = Boolean.valueOf(bz);
+                    activeBuzzer = Boolean.valueOf(bz.toString());
                 }
 
                 if (opts.has("buzzerDuration")) {
