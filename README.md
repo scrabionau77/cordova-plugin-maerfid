@@ -194,7 +194,7 @@ maerfid.disconnect({}, function(success){}, function(error){});
 
 
 ### READ GPIO CONFIG
-You can read GPIO direction settings. The plugin exposes method `readConfig` for this. Note: by default, all GPIO pins are set as input.
+You can read GPIO direction settings. The plugin exposes method `readGpioConfig` for this. Note: by default, all GPIO pins are set as input.
 
 ```js
 maerfid.readGpioConfig({}, function(success){}, function(error){});
@@ -203,7 +203,7 @@ maerfid.readGpioConfig({}, function(success){}, function(error){});
 
 
 ### READ GPIO VALUES
-You can read GPIO pin value. The plugin exposes method `readGpioValue` for this. Note: during reading, the pins configured as output are read and their value corresponds to the one set previously with the `configGpioCaen` method.
+You can read GPIO pin value. The plugin exposes method `readGpioValue` for this. Note: during reading, the pins configured as output are read and their value corresponds to the one set previously with the `configCaen` method.
 
 ```js
 maerfid.readGpioValue({}, function(success){}, function(error){});
@@ -211,7 +211,7 @@ maerfid.readGpioValue({}, function(success){}, function(error){});
 
 
 ### RFID READING
-After obtaining the communication permission, you can call this method to read the RFIDs picked up by the antenna. The plugin esposes `readRfid` method for this. This method needs `options` object that contains `src` number (indicating the antenna to read from).
+After first 3 essential steps you can call this method to read the RFIDs picked up by a single antenna. The plugin esposes `readRfid` method for this. This method needs `options` object that contains `src` number (indicating the antenna to read from).
 
 ```js
 maerfid.readRfid({
@@ -226,92 +226,75 @@ maerfid.readRfid({
 
 
 
-THIS IS OLD CONTENT!!!!!!!!!!!!!!!!!!!!
-| AZTEC         |    ✔    |  ✔  |     ✔    |
-
-`success` and `fail` are callback functions. Success is passed an object with data, type and cancelled properties. Data is the text representation of the barcode data, type is the type of barcode detected and cancelled is whether or not the user cancelled the scan.
+________
 
 A full example could be:
 ```js
-   cordova.plugins.barcodeScanner.scan(
-      function (result) {
-          alert("We got a barcode\n" +
-                "Result: " + result.text + "\n" +
-                "Format: " + result.format + "\n" +
-                "Cancelled: " + result.cancelled);
-      },
-      function (error) {
-          alert("Scanning failed: " + error);
-      },
-      {
-          preferFrontCamera : true, // iOS and Android
-          showFlipCameraButton : true, // iOS and Android
-          showTorchButton : true, // iOS and Android
-          torchOn: true, // Android, launch with the torch switched on (if available)
-          saveHistory: true, // Android, save scan history (default false)
-          prompt : "Place a barcode inside the scan area", // Android
-          resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
-          formats : "QR_CODE,PDF_417", // default: all but PDF_417 and RSS_EXPANDED
-          orientation : "landscape", // Android only (portrait|landscape), default unset so it rotates with the device
-          disableAnimations : true, // iOS
-          disableSuccessBeep: false // iOS and Android
-      }
-   );
+    maerfid.requestPermission({
+            vid: '21E1',
+            pid: '0089',
+            driver: 'CdcAcmSerialDriver'
+        }, //'FtdiSerialDriver' // or any other
+        function(success){
+            console.log(success);
+
+            maerfid.connect({}, function(success){
+                var options = {
+                    gpioConfig: 0x8, // Hex value. 0 = INPUT, 1 = OUTPUT
+                    outputVal: 0  // Hex value. 0 = Low output value, 1 = High output value
+                };
+
+                maerfid.configCaen(options, function(success){
+                    // Device ready
+                    
+                }, function(error){
+                    // ...
+                });
+
+
+            }, function(error){
+                // ...
+            });
+        },
+        function(error){
+            // ...
+        }
+    );
+
+
+
+    $('#button').on('tap', function(e){
+        e.preventDefault();
+
+        var options = {
+            Input0Antennas: 0x1,
+            Input1Antennas: 0x2,
+            Input2Antennas: 0x4,
+            readRfidDuration: 5000,
+            activeBuzzer: true,
+            buzzerDuration: 1500,
+            buzzerPin: 3
+        }
+        maerfid.waitRfid(options, function(success){
+            console.log(success); // list of tag
+            
+        }, function(error){
+            // ...
+        });
+    });
 ```
 
-## Encoding a Barcode ##
-
-The plugin creates the object `cordova.plugins.barcodeScanner` with the method `encode(type, data, success, fail)`.
-
-Supported encoding types:
-
-* TEXT_TYPE
-* EMAIL_TYPE
-* PHONE_TYPE
-* SMS_TYPE
-
-```
-A full example could be:
-
-   cordova.plugins.barcodeScanner.encode(cordova.plugins.barcodeScanner.Encode.TEXT_TYPE, "http://www.nytimes.com", function(success) {
-            alert("encode success: " + success);
-          }, function(fail) {
-            alert("encoding failed: " + fail);
-          }
-        );
-```
-
-## iOS quirks ##
-
-Since iOS 10 it's mandatory to add a `NSCameraUsageDescription` in the `Info.plist`.
-
-`NSCameraUsageDescription` describes the reason that the app accesses the user's camera.
-When the system prompts the user to allow access, this string is displayed as part of the dialog box. If you didn't provide the usage description, the app will crash before showing the dialog. Also, Apple will reject apps that access private data but don't provide an usage description.
-
-To add this entry you can use the `edit-config` tag in the `config.xml` like this:
-
-```
-<edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
-    <string>To scan barcodes</string>
-</edit-config>
-```
-
-## Windows quirks ##
-
-* Windows implementation currently doesn't support encode functionality.
-
-* On Windows 10 desktop ensure that you have Windows Media Player and Media Feature pack installed.
 
 ## Thanks on Github ##
 
-So many -- check out the original [iOS](https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/iOS/BarcodeScanner),  [Android](https://github.com/phonegap/phonegap-plugins/tree/DEPRECATED/Android/BarcodeScanner) and
-[BlackBerry 10](https://github.com/blackberry/WebWorks-Community-APIs/tree/master/BB10-Cordova/BarcodeScanner) repos.
+Developed by Daniele Pellerucci and Roberto Vitali.
+Special tanks to CAEN RFID (https://www.caenrfid.com/)
 
 ## Licence ##
 
 The MIT License
 
-Copyright (c) 2010 Matt Kane
+Copyright (c) 2019 Maestrale Information Technology
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
