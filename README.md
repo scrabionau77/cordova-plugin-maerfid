@@ -2,7 +2,8 @@
 ================================
 
 Android Cordova plugin to connect CAEN HADRON Rfid reader to Android device through USB OTG cable. Tested on android 8.
-Note: This plugin does not expose all the methods provided by the CAEN device. It contains some methods that allow the reading of RFID tags.
+Note: This plugin does not expose all the methods provided by the CAEN device. 
+It contains some methods that allow the reading of RFID tags and the use of GPIO pins.
 
 ## Installation
 
@@ -21,14 +22,14 @@ The plugin creates the object `maerfid`
 
 
 ## HOW IT WORKS ##
-There are steps to complete to enable RFID reading:
+There are some essential steps to enable RFID reading:
 1) Enable serial USB communication (method `requestPermission` show below);
 2) Enable connection to the CAEN Reader device (method `connect`);
-3) Set the operating parameters of the CAEN device (method `configCaenAsync`)
+3) Set the operating parameters of the CAEN device (method `configCaen`)
 
 After that it is possible to proceed in two ways:
-A) Use the automatic method that waits for RFID reads when a GPIO is activated (method `waitRfid`);
-B) Use the other methods available;
+- Use the automatic method that waits for RFID reads when a GPIO is activated (method `waitRfid`);
+- Use the other methods available;
 
 
 
