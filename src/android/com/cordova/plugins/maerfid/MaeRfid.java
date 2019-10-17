@@ -452,6 +452,9 @@ public class MaeRfid extends CordovaPlugin {
 
                     // manca il FILTER "ARRAY" x togliere i doppioni
 
+                    // Attivo la segnalazione di avvenuta lettura
+                    new Buzzer().execute();
+
                     PluginResult.Status status = PluginResult.Status.OK;
                     PluginResult result = new PluginResult(PluginResult.Status.OK, JsonOut.toString()); // ListArr.toString()
                     callbackContext.sendPluginResult(result);
@@ -717,6 +720,36 @@ public class MaeRfid extends CordovaPlugin {
 
 
             super.onPostExecute(result);
+        }
+    }
+
+
+
+
+
+    /*
+    * Loop to detect trigger GPIO
+    */
+    private class Buzzer extends AsyncTask<Void, Integer, String>
+    {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.d(TAG, "AAAAA ATTIVO LA SEGNALAZIONE D'USCITA");
+            
+            reader.SetIO(0x8);
+        }
+        @Override
+        protected String doInBackground(Void... arg0)
+        {
+            sleep(1000);
+            reader.SetIO(0x0);
+            Log.d(TAG, "AAAAA DISATTIVO LA SEGNALAZIONE D'USCITA");
+        }
+        @Override
+        protected void onPostExecute(String result)
+        {
+            //super.onPostExecute(result);
         }
     }
 
