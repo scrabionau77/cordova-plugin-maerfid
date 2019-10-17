@@ -740,7 +740,7 @@ public class MaeRfid extends CordovaPlugin {
             reader.SetIO(0x8);
         }
         @Override
-        protected String doInBackground(Void... arg0)
+        protected void doInBackground(Void... arg0)
         {
             Thread.sleep(1000);
             reader.SetIO(0x0);
