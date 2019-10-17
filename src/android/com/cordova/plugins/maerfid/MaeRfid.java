@@ -98,6 +98,7 @@ public class MaeRfid extends CordovaPlugin {
     private CAENRFIDReader reader = new CAENRFIDReader();
 
     // setting variables
+    private Integer Input0Antennas = 0;
     private Integer Input1Antennas = 0;
     private Integer Input2Antennas = 0;
     private Integer Input3Antennas = 0;
