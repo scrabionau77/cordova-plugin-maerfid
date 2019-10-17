@@ -471,15 +471,24 @@ public class MaeRfid extends CordovaPlugin {
                         }
 
                         String choicedInBin = Integer.toString(choicedIn, 2); // converto in binario
-                        for(int a = 0; a <= 3; a++){
-                            char antIsActive = choicedInBin.charAt(a);
+                        String cIB = "0000" + choicedInBin;
+                        choicedInBin =  cIB.substring(cIB.length() - 4); // Antenne da leggere (binario)
+                        
+                        Log.d(TAG, "AAAA INPUT: "+ triggeredInput +", InputAntenna associato: "+choicedIn+ " con binario: " + choicedInBin);
+
+                        for(int a = 3; a >= 0; a--){
+                            Log.d(TAG, "*** ANTENNA: " + a);
+                            char antIsActive = choicedInBin.charAt(a); // Valore (leggere/non leggere) per antenna attuale (intero)
+                            Log.d(TAG, "*** Valore: " + antIsActive);
                             if(antIsActive == 1){
 
                                 // Leggo i tag di questa antenna
                                 String caen_src = "Source_" + a; // ex: Source_0 for antenna 0
                                 CAENRFIDLogicalSource mySource = reader.GetSource(caen_src); // seleziono l'antenna
+                                Log.d(TAG, "AAAA ANtenna selezionata");
 
                                 CAENRFIDTag[] myTags = mySource.InventoryTag(); // leggo i tag
+                                Log.d(TAG, "ANTENNA LETTA");
 
                                 if(myTags != null && myTags.length > 0){
                                     for (int x= 0; x< myTags.length; x++) {
@@ -496,7 +505,6 @@ public class MaeRfid extends CordovaPlugin {
                                         JsonOut.put("tag_"+x, obj);
                                     }
                                 }
-                                Thread.sleep( 10 );
 
                             }
                         }
@@ -736,38 +744,51 @@ public class MaeRfid extends CordovaPlugin {
                 InputSetting = reader.GetIODirection();
             } catch(Exception e){
             }
-            String InputString = Integer.toString(InputSetting, 2); // converto in binario
-
+            String InputString = Integer.toString(InputSetting, 2); // Direzione dei GPIO (in binario)
+            String Is = "0000" + InputString;
+            InputString =  Is.substring(Is.length() - 4);
 
             Boolean iterate = true;
             int InputVal = 0x0;
             try {
-                Integer n = 0;
+                Integer n = 3, m = 0;
                 while(iterate){
                     Log.d(TAG, "AAAAA ANCORA A ZERO!");
 
-                    char str_index = InputString.charAt(n);
-                    Integer index = Integer.parseInt(String.valueOf(str_index)); // valore di configurazione del GPIO a cui sto puntando in questo ciclo
+                    char str_index = InputString.charAt(n); // Direzione del GPIO n (formato stringa)
+                    Integer index = Integer.parseInt(String.valueOf(str_index)); // Direzione del GPIO n (intero)
 
-                    InputVal = reader.GetIO();
-                    String InputValString = Integer.toString(InputVal, 2); // converto in binario
-                    char str_val_index = InputString.charAt(n);
-                    Integer value = Integer.parseInt(String.valueOf(str_index)); // valore d'ingresso del GPIO a cui sto puntando in questo ciclo
+                    InputVal = reader.GetIO(); // Valore applicato agli Ingressi
+                    String InputValString = Integer.toString(InputVal, 2); // Valore applicato agli Ingressi (in binario)
+                    // mi assicuro che abbia lunghezza pari a 4 bit
+                    String Ivs = ("0000" + InputValString);
+                    InputValString =  Ivs.substring(Ivs.length() - 4);
 
-                    if(index == 0 && InputVal > 0){ // se il GPIO n-esimo è settato come ingresso e c'è una tensione d'ingresso positiva
+                    char str_val_index = InputValString.charAt(n); // Valore applicato all'Ingresso n (stringa)
+                    Integer value = Integer.parseInt(String.valueOf(str_val_index)); // Valore applicato all'Ingresso n (intero)
+
+                    Log.d(TAG, "AAAAA STATO: STEP N="+n+" ConfigDirection:="+InputString+" InputValString:"+InputValString);
+                    Log.d(TAG, "AAAAA QUINDI: index="+index+" value:="+value);
+                    if(index == 0 && value > 0){ // se il GPIO n-esimo è settato come ingresso e c'è una tensione d'ingresso positiva
                         iterate = false;
-                        triggeredInput = n;
+                        triggeredInput = m;
                         Log.d(TAG, "AAAAA ESCO");
                         // verrà chiamato il metodo onPostExecute che a sua volta richiamerà readTagLoop
                     }
 
-                    n++;
-                    if(n > 3) n = 0;
+                    n--;
+                    m ++;
+                    if(m > 3) {
+                        m = 0;
+                        n = 3;
+                    }
                 }
             }
-            catch (Exception e) {}
+            catch (Exception e) {
+                Log.d(TAG, "AAAAA ECCEZIONE" + e.toString());
+            }
 
-
+            Log.d(TAG, "AAAAA CICLO TERMINATO");
             return "Valore estratto: " +  InputVal;
         }
         @Override
