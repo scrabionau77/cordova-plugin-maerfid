@@ -158,6 +158,7 @@ maerfid.waitRfid(options, function(success){}, function(error){});
 
 
 The following table show `Input0Antennas`, `Input1Antennas`, `Input2Antennas`, `Input3Antennas` values and corresponding antennas readed.
+Note: value must be greater than 0.
 
 | Value      | ANT 3    | ANT 2    | ANT 1    | ANT 0    |
 |------------|:--------:|:--------:|:--------:|:--------:|
