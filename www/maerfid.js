@@ -6,44 +6,6 @@
  */
 
 var maerfid = {
-    readGpioConfig: function (opts, successCallback, errorCallback) {
-        opts = {}; // not used for now!
-        if (errorCallback == null) {
-            errorCallback = function () {
-            };
-        }
-    
-        if (typeof errorCallback != "function") {
-            console.log("MaeRfid.readConfig failure: error callback parameter not a function");
-            return;
-        }
-    
-        if (typeof successCallback != "function") {
-            console.log("MaeRfid.readConfig failure: success callback parameter must be a function");
-            return;
-        }
-    
-        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'readGpio', [{'opts': opts}]);
-    },
-    readGpioValue: function (opts, successCallback, errorCallback) {
-        opts = {}; // not used for now!
-        if (errorCallback == null) {
-            errorCallback = function () {
-            };
-        }
-    
-        if (typeof errorCallback != "function") {
-            console.log("MaeRfid.readGpio failure: error callback parameter not a function");
-            return;
-        }
-    
-        if (typeof successCallback != "function") {
-            console.log("MaeRfid.readGpio failure: success callback parameter must be a function");
-            return;
-        }
-    
-        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'readGpio', [{'opts': opts}]);
-    },
     requestPermission: function (opts, successCallback, errorCallback) {
         if (typeof opts === 'function') {  //user did not pass opts
             errorCallback = successCallback;
@@ -66,29 +28,6 @@ var maerfid = {
         }
     
         cordova.exec(successCallback, errorCallback, 'MaeRfid', 'requestPermission', [{'opts': opts}]);
-    },
-    readRfid: function (opts, successCallback, errorCallback) {
-        if (errorCallback == null) {
-            errorCallback = function () {
-            };
-        }
-        if (typeof opts === 'function') {  //user did not pass opts
-            errorCallback = successCallback;
-            successCallback = opts;
-            opts = {};
-        }
-        
-        if (typeof errorCallback != "function") {
-            console.log("MaeRfid.readTag failure: error callback parameter not a function");
-            return;
-        }
-    
-        if (typeof successCallback != "function") {
-            console.log("MaeRfid.readTag failure: success callback parameter must be a function");
-            return;
-        }
-    
-        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'readTag', [{'opts': opts}]);
     },
     connect: function (opts, successCallback, errorCallback) {
         if (errorCallback == null) {
@@ -181,8 +120,69 @@ var maerfid = {
         }
     
         cordova.exec(successCallback, errorCallback, 'MaeRfid', 'disconnect', [{'opts': opts}]);
-    }
+    },
 
+    readGpioConfig: function (opts, successCallback, errorCallback) {
+        opts = {}; // not used for now!
+        if (errorCallback == null) {
+            errorCallback = function () {
+            };
+        }
+    
+        if (typeof errorCallback != "function") {
+            console.log("MaeRfid.readConfig failure: error callback parameter not a function");
+            return;
+        }
+    
+        if (typeof successCallback != "function") {
+            console.log("MaeRfid.readConfig failure: success callback parameter must be a function");
+            return;
+        }
+    
+        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'readGpio', [{'opts': opts}]);
+    },
+    readGpioValue: function (opts, successCallback, errorCallback) {
+        opts = {}; // not used for now!
+        if (errorCallback == null) {
+            errorCallback = function () {
+            };
+        }
+    
+        if (typeof errorCallback != "function") {
+            console.log("MaeRfid.readGpio failure: error callback parameter not a function");
+            return;
+        }
+    
+        if (typeof successCallback != "function") {
+            console.log("MaeRfid.readGpio failure: success callback parameter must be a function");
+            return;
+        }
+    
+        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'readGpio', [{'opts': opts}]);
+    },
+    readRfid: function (opts, successCallback, errorCallback) {
+        if (errorCallback == null) {
+            errorCallback = function () {
+            };
+        }
+        if (typeof opts === 'function') {  //user did not pass opts
+            errorCallback = successCallback;
+            successCallback = opts;
+            opts = {};
+        }
+        
+        if (typeof errorCallback != "function") {
+            console.log("MaeRfid.readTag failure: error callback parameter not a function");
+            return;
+        }
+    
+        if (typeof successCallback != "function") {
+            console.log("MaeRfid.readTag failure: success callback parameter must be a function");
+            return;
+        }
+    
+        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'readTag', [{'opts': opts}]);
+    }
 
 }
 

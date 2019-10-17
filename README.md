@@ -182,70 +182,6 @@ Note: value must be greater than 0.
 | 0xF        |  ✔ |  ✔ |  ✔ |  ✔ |
 
 
-
-
-## OTHER METHODS ##
-
-### SETUP GPIO
-You can configure the GPIO pin. The plugin exposes method `configGpioCaen` for this. This method needs `options` object that contains pins `direction` (input and output settings) and `value` configurations (set high/low value for output pins). Note: the value setting is ignored for bits configured as input
-
-```js
-var options = {
-    gpioConfig: 0x3, // Hex value. 0 = INPUT, 1 = OUTPUT
-    outputVal: 0x0  // Hex value. 0 = Low output value, 1 = High output value
-};
-maerfid.configGpioCaen(options, function(success){}, function(error){});
-```
-
-
-
-The following table show `gpioConfig` value and I/O configuration pins:
-
-| gpioConfig | GPIO3    | GPIO2    | GPIO1    | GPIO0    |
-|------------|:--------:|:--------:|:--------:|:--------:|
-| 0x0        |  0 = IN  |  0 = IN  |  0 = IN  |  0 = IN  |
-| 0x1        |  0 = IN  |  0 = IN  |  0 = IN  |  1 = OUT |
-| 0x2        |  0 = IN  |  0 = IN  |  1 = OUT |  0 = IN  |
-| 0x3        |  0 = IN  |  0 = IN  |  1 = OUT |  1 = OUT |
-| 0x4        |  0 = IN  |  1 = OUT |  0 = IN  |  0 = IN  |
-| 0x5        |  0 = IN  |  1 = OUT |  0 = IN  |  1 = OUT |
-| 0x6        |  0 = IN  |  1 = OUT |  1 = OUT |  0 = IN  |
-| 0x7        |  0 = IN  |  1 = OUT |  1 = OUT |  1 = OUT |
-| 0x8        |  1 = OUT |  0 = IN  |  0 = IN  |  0 = IN  |
-| 0x9        |  1 = OUT |  0 = IN  |  0 = IN  |  1 = OUT |
-| 0xA        |  1 = OUT |  0 = IN  |  1 = OUT |  0 = IN  |
-| 0xB        |  1 = OUT |  0 = IN  |  1 = OUT |  1 = OUT |
-| 0xC        |  1 = OUT |  1 = OUT |  0 = IN  |  0 = IN  |
-| 0xD        |  1 = OUT |  1 = OUT |  0 = IN  |  1 = OUT |
-| 0xE        |  1 = OUT |  1 = OUT |  1 = OUT |  0 = IN  |
-| 0xF        |  1 = OUT |  1 = OUT |  1 = OUT |  1 = OUT |
-
-
-The following table show `outputVal` value and Output pin value (remember: the value setting is ignored for bits configured as input):
-
-| gpioConfig | GPIO3     | GPIO2     | GPIO1     | GPIO0     |
-|------------|:---------:|:---------:|:---------:|:---------:|
-| 0x0        |  0 = LOW  |  0 = LOW  |  0 = LOW  |  0 = LOW  |
-| 0x1        |  0 = LOW  |  0 = LOW  |  0 = LOW  |  1 = HIGH |
-| 0x2        |  0 = LOW  |  0 = LOW  |  1 = HIGH |  0 = LOW  |
-| 0x3        |  0 = LOW  |  0 = LOW  |  1 = HIGH |  1 = HIGH |
-| 0x4        |  0 = LOW  |  1 = HIGH |  0 = LOW  |  0 = LOW  |
-| 0x5        |  0 = LOW  |  1 = HIGH |  0 = LOW  |  1 = HIGH |
-| 0x6        |  0 = LOW  |  1 = HIGH |  1 = HIGH |  0 = LOW  |
-| 0x7        |  0 = LOW  |  1 = HIGH |  1 = HIGH |  1 = HIGH |
-| 0x8        |  1 = HIGH |  0 = LOW  |  0 = LOW  |  0 = LOW  |
-| 0x9        |  1 = HIGH |  0 = LOW  |  0 = LOW  |  1 = HIGH |
-| 0xA        |  1 = HIGH |  0 = LOW  |  1 = HIGH |  0 = LOW  |
-| 0xB        |  1 = HIGH |  0 = LOW  |  1 = HIGH |  1 = HIGH |
-| 0xC        |  1 = HIGH |  1 = HIGH |  0 = LOW  |  0 = LOW  |
-| 0xD        |  1 = HIGH |  1 = HIGH |  0 = LOW  |  1 = HIGH |
-| 0xE        |  1 = HIGH |  1 = HIGH |  1 = HIGH |  0 = LOW  |
-| 0xF        |  1 = HIGH |  1 = HIGH |  1 = HIGH |  1 = HIGH |
-
-
-
-
-
 ### DISCONNECT
 Close HADRON device connection.
 
@@ -254,6 +190,7 @@ maerfid.disconnect({}, function(success){}, function(error){});
 ```
 
 
+## OTHER METHODS ##
 
 
 ### READ GPIO CONFIG
