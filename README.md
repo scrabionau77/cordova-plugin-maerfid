@@ -71,7 +71,7 @@ maerfid.connect({},
 
 ### CONFIG CAEN RFID READER
 You can configure the device using `configCaen` method. It needs `options` object that contains GPIO pins `direction` (input and output settings) and `value` configurations (set high/low value for GPIO pins set as output). Note: the value setting is ignored for bits configured as input.
-By default, all GPIO are set as input (equivalent to options.gpioConfig: 0x0).
+By default, all GPIO are set as input (equivalent to options.gpioConfig: 0x0) and **you will need to repeat the setup every time the HADRON device is turned off and then turned back on.**
 
 ```js
 var options = {
