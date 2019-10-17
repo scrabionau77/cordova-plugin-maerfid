@@ -285,10 +285,10 @@ A full example could be:
 ```
 
 
-## Thanks on Github ##
+## Thanks ##
 
-Developed by Daniele Pellerucci and Roberto Vitali.
-Special tanks to CAEN RFID (https://www.caenrfid.com/)
+Developed by Daniele Pellerucci and Roberto Vitali for Maestrale Information Technology.
+Special thanks to CAEN RFID (https://www.caenrfid.com/)
 
 ## Licence ##
 
