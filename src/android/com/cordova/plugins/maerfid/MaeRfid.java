@@ -740,16 +740,17 @@ public class MaeRfid extends CordovaPlugin {
             reader.SetIO(0x8);
         }
         @Override
-        protected void doInBackground(Void... arg0)
+        protected String doInBackground(Void... arg0)
         {
             Thread.sleep(1000);
             reader.SetIO(0x0);
             Log.d(TAG, "AAAAA DISATTIVO LA SEGNALAZIONE D'USCITA");
+            return "";
         }
         @Override
         protected void onPostExecute(String result)
         {
-            //super.onPostExecute(result);
+            super.onPostExecute(result);
         }
     }
 
