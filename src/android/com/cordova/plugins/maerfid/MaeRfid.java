@@ -506,7 +506,7 @@ public class MaeRfid extends CordovaPlugin {
 
                 try {
                     Log.d(TAG, "Avvio la lettura delle GPIO!");
-                    reader.Connect(port);
+                    //reader.Connect(port);
 
                     // Leggo il valore dei GPIO
                     int InputVal = 0x0;
