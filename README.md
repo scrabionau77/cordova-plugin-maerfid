@@ -40,11 +40,13 @@ This is the first required operation to communicate with the device.
 The plugin exposes method `requestPermission` for this. This method needs `options` object that contains vid, pid e driver configurations (these data are provided by the manufacturer. For Caen Hadron they are show below).
 
 ```js
-maerfid.rerequestPermissionadGpio({
+var options = {
         vid: '21E1',
         pid: '0089',
         driver: 'CdcAcmSerialDriver'
-    },
+    };
+
+maerfid.rerequestPermissionadGpio(options,
     function(success){
         // authorization granted
     },
@@ -54,12 +56,12 @@ maerfid.rerequestPermissionadGpio({
 
 
 ### CONNECT TO CAEN RFID READER
-The `connect` method establishes communication with the CAEN Reader device. You'll can use the `disconnect` method to close the connection.
+The `connect` method establishes communication with the CAEN Reader device on USB port. You'll can use the `disconnect` method to close the connection.
 
 ```js
 maerfid.connect({},
     function(success){
-        // establishes communication
+        // established communication
     },
     function(error){}
 );
@@ -132,9 +134,9 @@ This method involves reading the RFID tags when activating one of the GPIO pins.
 This method requires the `options` parameter. With this parameter we can choose:
 1) Which antennas correspond to each GPIO input (for each input it is possible to choose one or more antennas from which to read the RFID);
 2) How long to read the RFIDs after applying the positive voltage to the GPIO input.
-3) When the reading is complete you can use an output GPIO to activate lights or other devices. The option parameter contains 3 dedicated keys (activation, duration of activation, GPIO pin to be activated)
+3) When the reading is complete you can use an output GPIO to activate lights or other devices. The option parameter contains 3 dedicated keys (enable/disable, duration of activation, GPIO pin to be activated)
 
-The reading is repeated several times in the time frame set in the options parameter. When finished, the list of read tags is returned.
+The Rfid reading is repeated several times in the time frame set in the options parameter. When finished, the list of read tags is returned.
 The list of read tags is filtered to prevent the same tag from being repeated in the returned list.
 The method stops when the result is returned. Therefore it must be called back to start further reading.
 
@@ -144,13 +146,13 @@ IMPORTANT: Activate the reading only from the antennas actually connected to the
 
 ```js
 var options = {
-    Input0Antennas: 0x3, // see below table for details
+    Input0Antennas: 0x3,        // see below table for details
     Input1Antennas: 0x3,
     Input2Antennas: 0x3,
     Input3Antennas: 0x3,
-    readRfidDuration: 50000,    // milliseconds
+    readRfidDuration: 5000,     // milliseconds
     activeBuzzer: true,
-    buzzerDuration: 1000        // milliseconds
+    buzzerDuration: 1000,       // milliseconds
     buzzerPin: 3                // 0 to 3
 };
 
@@ -182,7 +184,7 @@ Note: value must be greater than 0.
 
 
 
-
+## OTHER METHODS ##
 
 ### SETUP GPIO
 You can configure the GPIO pin. The plugin exposes method `configGpioCaen` for this. This method needs `options` object that contains pins `direction` (input and output settings) and `value` configurations (set high/low value for output pins). Note: the value setting is ignored for bits configured as input
