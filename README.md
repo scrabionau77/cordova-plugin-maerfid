@@ -287,14 +287,14 @@ A full example could be:
 
 ## Thanks ##
 
-Developed by Daniele Pellerucci and Roberto Vitali for Maestrale Information Technology.
+Developed by Daniele Pellerucci and Roberto Vitali for Maestrale Information Technology (https://www.maestrale.it/).
 Special thanks to CAEN RFID (https://www.caenrfid.com/)
 
 ## Licence ##
 
 The MIT License
 
-Copyright (c) 2019 Maestrale Information Technology
+Copyright (c) 2019 Maestrale Information Technology (https://www.maestrale.it/)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
