@@ -473,7 +473,7 @@ public class MaeRfid extends CordovaPlugin {
                         String choicedInBin = Integer.toString(choicedIn, 2); // converto in binario
                         String cIB = "0000" + choicedInBin;
                         choicedInBin =  cIB.substring(cIB.length() - 4); // Antenne da leggere (binario)
-                        
+
                         Log.d(TAG, "AAAA INPUT: "+ triggeredInput +", InputAntenna associato: "+choicedIn+ " con binario: " + choicedInBin);
 
                         for(int a = 3; a >= 0; a--){
@@ -830,18 +830,25 @@ public class MaeRfid extends CordovaPlugin {
                 try{
                     InputSetting = reader.GetIODirection();
                 } catch(Exception e){}
-                String InputString = Integer.toString(InputSetting, 2); // converto in binario
+                String InputString = Integer.toString(InputSetting, 2); // Direzione dei GPIO (binario)
+                String is = ("0000" + InputString);
+                InputString = is.substring(is.length() - 4); // Direzione dei GPIO (stringa)
 
                 // verifico se il pin a cui è assegnato il buzzer è effettivamente di uscita
-                char valueBuzzerActivation = InputString.charAt(buzzerPin);
+                char valueBuzzerActivation = InputString.charAt(invertIndex(buzzerPin));
 
                 if(valueBuzzerActivation == 1){
                     try{
                         Log.d(TAG, "AAAAA ATTIVO LA SEGNALAZIONE D'USCITA");
                         Integer actualValue = reader.GetIO();
-                        String actualValueString = Integer.toString(actualValue, 2);
+                        String actualValueString = Integer.toString(actualValue, 2); // Valore attualmente applicato agli ingressi (binario)
+
+                        String avs = ("0000" + actualValueString);
+                        actualValueString = avs.substring(avs.length() - 4); // Valore attualmente applicato agli ingressi (stringa)
+
+
                         StringBuilder plainText = new StringBuilder(actualValueString);
-                        plainText.setCharAt(buzzerPin, '1');
+                        plainText.setCharAt(invertIndex(buzzerPin), '1'); // Nuovo
                         actualValue = Integer.parseInt((String) plainText.toString(), 2);
 
                         reader.SetIO(actualValue);
@@ -862,10 +869,13 @@ public class MaeRfid extends CordovaPlugin {
                     // recupero l'attuale valore degli ingressi e poi modifico il valore del pin di buzzer
                     Integer actualValue = reader.GetIO();
 
-                    String actualValueString = Integer.toString(actualValue, 2);
+                    String actualValueString = Integer.toString(actualValue, 2); // Attuale valore applicato agli ingressi (binario)
+                    String aVs = "0000" + actualValueString;
+                    actualValueString =  aVs.substring(aVs.length() - 4); // Attuale valore applicato agli ingressi (stringa)
+
                     StringBuilder plainText = new StringBuilder(actualValueString);
 
-                    plainText.setCharAt(buzzerPin, '0');
+                    plainText.setCharAt(invertIndex(buzzerPin), '0');
                     actualValue = Integer.parseInt((String) plainText.toString(), 2);
 
                     reader.SetIO(actualValue);
@@ -882,6 +892,22 @@ public class MaeRfid extends CordovaPlugin {
         {
             super.onPostExecute(result);
         }
+    }
+
+
+
+    /*
+     * Java algorithm to "invert" index order
+     */
+    private static Integer invertIndex(Integer Index) {
+
+        if(Index == 0){
+            return 3;
+        } else if(Index == 1){
+            return 2;
+        } else if(Index == 2){
+            return 1;
+        } else return 0;
     }
 
 
