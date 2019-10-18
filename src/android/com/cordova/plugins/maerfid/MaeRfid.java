@@ -476,9 +476,9 @@ public class MaeRfid extends CordovaPlugin {
 
                         Log.d(TAG, "AAAA INPUT: "+ triggeredInput +", InputAntenna associato: "+choicedIn+ " con binario: " + choicedInBin);
 
-                        for(int a = 3; a >= 0; a--){
+                        for(int a = 0; a <= 3; a++){
                             Log.d(TAG, "*** ANTENNA: " + a);
-                            char antIsActive = choicedInBin.charAt(a); // Valore (leggere/non leggere) per antenna attuale (intero)
+                            char antIsActive = choicedInBin.charAt(invertIndex(a)); // Valore (leggere/non leggere) per antenna attuale (intero)
                             Log.d(TAG, "*** Valore: " + antIsActive);
                             if(antIsActive == 1){
 
