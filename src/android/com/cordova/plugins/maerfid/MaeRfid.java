@@ -107,8 +107,20 @@ public class MaeRfid extends CordovaPlugin {
     private Boolean isConnected = false;
     private Integer triggeredInput = 0;
     private Boolean activeBuzzer = false;
-    private Integer buzzerDuration = 1000;
     private Integer buzzerPin = 3;
+
+    private Integer buzzerDuration = 1000; // Per avvenuta lettura
+    private Integer buzzerRepeat = 1;
+    private Integer buzzerStartDuration = 300; // Per inizio lettura (rilevata attivazione GPIO)
+    private Integer buzzerStartRepeat = 1;
+    private Integer buzzerFailDuration = 150; // Per inizio lettura (rilevata attivazione GPIO)
+    private Integer buzzerFailRepeat = 3;
+
+    // utility variables
+    private Boolean BuzzerIsActive = false;
+    private Boolean BuzzeredInThisReading = false;
+    private Integer BuzzerRealDuration = 0;
+    private Integer BuzzerRepeat = 1;
 
 
     /**
@@ -407,6 +419,51 @@ public class MaeRfid extends CordovaPlugin {
                     }
                 }
 
+                if (opts.has("buzzerRepeat")) {
+                    Object b_r = opts.opt("buzzerRepeat");
+                    buzzerRepeat = ((Number) b_r).intValue();
+
+                    if(buzzerRepeat <= 0){
+                        buzzerRepeat = 1;
+                    }
+                }
+
+                if (opts.has("buzzerStartDuration")) {
+                    Object b_durS = opts.opt("buzzerStartDuration");
+                    buzzerStartDuration = ((Number) b_durS).intValue();
+
+                    if(buzzerStartDuration <= 0){
+                        buzzerStartDuration = 300;
+                    }
+                }
+
+                if (opts.has("buzzerStartRepeat")) {
+                    Object b_rS = opts.opt("buzzerStartRepeat");
+                    buzzerStartRepeat = ((Number) b_rS).intValue();
+
+                    if(buzzerStartRepeat <= 0){
+                        buzzerStartRepeat = 1;
+                    }
+                }
+
+                if (opts.has("buzzerFailDuration")) {
+                    Object b_durF = opts.opt("buzzerFailDuration");
+                    buzzerFailDuration = ((Number) b_durF).intValue();
+
+                    if(buzzerFailDuration <= 0){
+                        buzzerFailDuration = 150;
+                    }
+                }
+
+                if (opts.has("buzzerFailRepeat")) {
+                    Object b_rF = opts.opt("buzzerFailRepeat");
+                    buzzerFailRepeat = ((Number) b_rF).intValue();
+
+                    if(buzzerFailRepeat <= 0){
+                        buzzerFailRepeat = 3;
+                    }
+                }
+
                 if (opts.has("buzzerPin")) {
                     Object b_pin = opts.opt("buzzerPin");
                     buzzerPin = ((Number) b_pin).intValue();
@@ -419,7 +476,7 @@ public class MaeRfid extends CordovaPlugin {
 
 
                 try {
-                    Log.d(TAG, "Avvio la lettura delle GPIO!");
+                    //Log.d(TAG, "Avvio la lettura delle GPIO!");
 
                     // avvio il loop di lettura delle GPIO
                     new GpioPollong().execute();
@@ -443,11 +500,13 @@ public class MaeRfid extends CordovaPlugin {
             public void run() {
 
                 try {
-                    Log.d(TAG, "Avvio lettura tag!");
+                    //Log.d(TAG, "Avvio lettura tag!");
+                    BuzzeredInThisReading = false;
 
                     // Loop
                     long t= System.currentTimeMillis();
                     long end = t + readRfidDuration;
+                    Integer numberTags = 0;
 
 
                     org.json.JSONObject JsonOut = new org.json.JSONObject();
@@ -503,7 +562,16 @@ public class MaeRfid extends CordovaPlugin {
                                         obj.put("TimeStamp", tag.GetTimeStamp());
 
                                         JsonOut.put("tag_"+x, obj);
+                                        numberTags++;
                                     }
+
+                                    if(BuzzeredInThisReading == false && BuzzerIsActive == false){ // avvio subito il buzzer
+                                        BuzzerRepeat = 1;
+                                        BuzzeredInThisReading = true;
+                                        BuzzerRealDuration = buzzerDuration;
+                                        new Buzzer().execute(); // Attivo la segnalazione di avvenuta lettura
+                                    }
+
                                 }
 
                             }
@@ -512,12 +580,20 @@ public class MaeRfid extends CordovaPlugin {
                         Thread.sleep( 10 );
                     }
 
+                    if(numberTags == 0){
+                        if(BuzzerIsActive == false){
+                            BuzzerRepeat = buzzerFailRepeat;
+                            BuzzerRealDuration = buzzerFailDuration;
+                            new Buzzer().execute(); // Attivo la segnalazione di lettura senza tag
+                        }
+                    }
+
                     // manca il FILTER "ARRAY" x togliere i doppioni
 
-                    // Attivo la segnalazione di avvenuta lettura
-                    new Buzzer().execute();
 
+                    JsonOut.put("NumberTags", numberTags);
                     // Aggiungo dati utili per la verifica:
+                    /*
                     JsonOut.put("Input0Antennas", Input0Antennas);
                     JsonOut.put("Input1Antennas", Input1Antennas);
                     JsonOut.put("Input2Antennas", Input2Antennas);
@@ -528,6 +604,7 @@ public class MaeRfid extends CordovaPlugin {
                     JsonOut.put("activeBuzzer", activeBuzzer);
                     JsonOut.put("buzzerDuration", buzzerDuration);
                     JsonOut.put("buzzerPin", buzzerPin);
+                    */
 
 
                     PluginResult.Status status = PluginResult.Status.OK;
@@ -729,14 +806,12 @@ public class MaeRfid extends CordovaPlugin {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.d(TAG, "AAAAA PRE EXECUTE");
-            //progress.setProgress(0);
-            //progress.show();
+            //Log.d(TAG, "AAAAA PRE EXECUTE");
         }
         @Override
         protected String doInBackground(Void... arg0)
         {
-            Log.d(TAG, "AAAAA DO IN BG");
+            //Log.d(TAG, "AAAAA DO IN BG");
 
             // estraggo la configurazione (direzione) dei GPIO
             Integer InputSetting = 0xF;
@@ -753,7 +828,7 @@ public class MaeRfid extends CordovaPlugin {
             try {
                 Integer n = 3, m = 0;
                 while(iterate){
-                    Log.d(TAG, "AAAAA ANCORA A ZERO!");
+                    //Log.d(TAG, "AAAAA ANCORA A ZERO!");
 
                     char str_index = InputString.charAt(n); // Direzione del GPIO n (formato stringa)
                     Integer index = Integer.parseInt(String.valueOf(str_index)); // Direzione del GPIO n (intero)
@@ -767,12 +842,16 @@ public class MaeRfid extends CordovaPlugin {
                     char str_val_index = InputValString.charAt(n); // Valore applicato all'Ingresso n (stringa)
                     Integer value = Integer.parseInt(String.valueOf(str_val_index)); // Valore applicato all'Ingresso n (intero)
 
-                    Log.d(TAG, "AAAAA STATO: STEP N="+n+" ConfigDirection:="+InputString+" InputValString:"+InputValString);
-                    Log.d(TAG, "AAAAA QUINDI: index="+index+" value:="+value);
+                    //Log.d(TAG, "AAAAA STATO: STEP N="+n+" ConfigDirection:="+InputString+" InputValString:"+InputValString);
+                    //Log.d(TAG, "AAAAA QUINDI: index="+index+" value:="+value);
                     if(index == 0 && value > 0){ // se il GPIO n-esimo è settato come ingresso e c'è una tensione d'ingresso positiva
                         iterate = false;
                         triggeredInput = m;
-                        Log.d(TAG, "AAAAA ESCO");
+                        //Log.d(TAG, "AAAAA ESCO");
+
+                        BuzzerRepeat = buzzerStartRepeat;
+                        BuzzerRealDuration = buzzerStartDuration;
+                        new Buzzer().execute();
                         // verrà chiamato il metodo onPostExecute che a sua volta richiamerà readTagLoop
                     }
 
@@ -788,20 +867,20 @@ public class MaeRfid extends CordovaPlugin {
                 Log.d(TAG, "AAAAA ECCEZIONE" + e.toString());
             }
 
-            Log.d(TAG, "AAAAA CICLO TERMINATO");
+            //Log.d(TAG, "AAAAA CICLO TERMINATO");
             return "Valore estratto: " +  InputVal;
         }
         @Override
         protected void onProgressUpdate(Integer... values)
         {
-            Log.d(TAG, "AAAAA ON UPDATE");
+            //Log.d(TAG, "AAAAA ON UPDATE");
             super.onProgressUpdate(values);
 
         }
         @Override
         protected void onPostExecute(String result)
         {
-            Log.d(TAG, "AAAAA ON POST EXECUTE");
+            //Log.d(TAG, "AAAAA ON POST EXECUTE");
 
             JSONObject jnull = new JSONObject();
             readTagLoop(jnull, callbackContext);
@@ -825,7 +904,11 @@ public class MaeRfid extends CordovaPlugin {
             super.onPreExecute();
             Log.d(TAG, "AAAAA SEZIONE BUZZER. ActiveBuzzer="+activeBuzzer.toString());
 
-            if(activeBuzzer){
+        }
+        @Override
+        protected String doInBackground(Void... arg0)
+        {
+            if(activeBuzzer && BuzzerIsActive == false){
                 // estraggo la configurazione (direzione) dei GPIO
                 Integer InputSetting = 0xF;
                 try{
@@ -841,49 +924,59 @@ public class MaeRfid extends CordovaPlugin {
                 Log.d(TAG, "AAAAA Pin designato per il buzzer (invertito): "+invertIndex(buzzerPin)+" - Valore di direzione: "+valueBuzzerActivation);
 
                 if(valueBuzzerActivation == '1'){
-                    try{
-                        Log.d(TAG, "AAAAA ATTIVO LA SEGNALAZIONE D'USCITA");
-                        Integer actualValue = reader.GetIO();
-                        String actualValueString = Integer.toString(actualValue, 2); // Valore attualmente applicato agli ingressi (binario)
 
-                        String avs = ("0000" + actualValueString);
-                        actualValueString = avs.substring(avs.length() - 4); // Valore attualmente applicato agli ingressi (stringa)
+                    for(int y = 0; y < BuzzerRepeat; y++){
+                        try{
+                            Log.d(TAG, "AAAAA ATTIVO LA SEGNALAZIONE D'USCITA");
+                            Integer actualValue = reader.GetIO();
+                            String actualValueString = Integer.toString(actualValue, 2); // Valore attualmente applicato agli ingressi (binario)
+
+                            String avs = ("0000" + actualValueString);
+                            actualValueString = avs.substring(avs.length() - 4); // Valore attualmente applicato agli ingressi (stringa)
 
 
-                        StringBuilder plainText = new StringBuilder(actualValueString);
-                        plainText.setCharAt(invertIndex(buzzerPin), '1'); // Nuovo
-                        actualValue = Integer.parseInt((String) plainText.toString(), 2);
+                            StringBuilder plainText = new StringBuilder(actualValueString);
+                            plainText.setCharAt(invertIndex(buzzerPin), '1'); // Nuovo
+                            actualValue = Integer.parseInt((String) plainText.toString(), 2);
 
-                        reader.SetIO(actualValue);
+                            reader.SetIO(actualValue);
+                            BuzzerIsActive = true;
+                        }
+                        catch(Exception e){}
+
+                        try{
+                            Thread.sleep(BuzzerRealDuration);
+
+                            // recupero l'attuale valore degli ingressi e poi modifico il valore del pin di buzzer
+                            Integer actualValue = reader.GetIO();
+
+                            String actualValueString = Integer.toString(actualValue, 2); // Attuale valore applicato agli ingressi (binario)
+                            String aVs = "0000" + actualValueString;
+                            actualValueString =  aVs.substring(aVs.length() - 4); // Attuale valore applicato agli ingressi (stringa)
+
+                            StringBuilder plainText = new StringBuilder(actualValueString);
+
+                            plainText.setCharAt(invertIndex(buzzerPin), '0');
+                            actualValue = Integer.parseInt((String) plainText.toString(), 2);
+
+                            reader.SetIO(actualValue);
+                            BuzzerIsActive = false;
+                        }
+                        catch(Exception e){}
+
+                        if(y > 0){ // ritardo per gli eventuali cicli di ripetizione del buzzer
+                            try{
+                                Thread.sleep(10);
+                            }
+                            catch(Exception e){};
+                        }
                     }
-                    catch(Exception e){}
                 }
             }
 
-        }
-        @Override
-        protected String doInBackground(Void... arg0)
-        {
 
-            if(activeBuzzer){
-                try{
-                    Thread.sleep(buzzerDuration);
+            if(activeBuzzer && BuzzerIsActive == true){
 
-                    // recupero l'attuale valore degli ingressi e poi modifico il valore del pin di buzzer
-                    Integer actualValue = reader.GetIO();
-
-                    String actualValueString = Integer.toString(actualValue, 2); // Attuale valore applicato agli ingressi (binario)
-                    String aVs = "0000" + actualValueString;
-                    actualValueString =  aVs.substring(aVs.length() - 4); // Attuale valore applicato agli ingressi (stringa)
-
-                    StringBuilder plainText = new StringBuilder(actualValueString);
-
-                    plainText.setCharAt(invertIndex(buzzerPin), '0');
-                    actualValue = Integer.parseInt((String) plainText.toString(), 2);
-
-                    reader.SetIO(actualValue);
-                }
-                catch(Exception e){}
             }
 
 
@@ -903,7 +996,6 @@ public class MaeRfid extends CordovaPlugin {
      * Java algorithm to "invert" index order
      */
     private static Integer invertIndex(Integer Index) {
-
         if(Index == 0){
             return 3;
         } else if(Index == 1){

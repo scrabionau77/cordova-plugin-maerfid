@@ -134,7 +134,7 @@ This method involves reading the RFID tags when activating one of the GPIO pins.
 This method requires the `options` parameter. With this parameter we can choose:
 1) Which antennas correspond to each GPIO input (for each input it is possible to choose one or more antennas from which to read the RFID);
 2) How long to read the RFIDs after applying the positive voltage to the GPIO input.
-3) When the reading is complete you can use an output GPIO to activate lights or other devices. The option parameter contains 3 dedicated keys (enable/disable, duration of activation, GPIO pin to be activated)
+3) When the reading is complete you can use an output GPIO to activate lights or other devices. The option parameter contains 3 dedicated keys (enable/disable, duration of activation, GPIO pin to be activated. See `options` parameter in example below for more details)
 
 The Rfid reading is repeated several times in the time frame set in the options parameter. When finished, the list of read tags is returned.
 The list of read tags is filtered to prevent the same tag from being repeated in the returned list.
@@ -152,8 +152,13 @@ var options = {
     Input3Antennas: 0x3,
     readRfidDuration: 5000,     // milliseconds
     activeBuzzer: true,
-    buzzerDuration: 1000,       // milliseconds
     buzzerPin: 3                // 0 to 3
+    buzzerDuration: 1000,       // Durations when one ore more tags are detected (milliseconds)
+    buzzerRepeat: 1,            // Number of desired repetitions
+    buzzerStartDuration: 300,   // Duration when an input is detected
+    buzzerStartRepeat: 1,          // Number of desired repetitions
+    buzzerFailDuration: 150,    // Duration when no tags are detected
+    buzzerFailRepeat: 3         // Number of desired repetitions
 };
 
 maerfid.waitRfid(options, function(success){}, function(error){});
