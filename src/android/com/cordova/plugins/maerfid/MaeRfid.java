@@ -480,7 +480,7 @@ public class MaeRfid extends CordovaPlugin {
                             Log.d(TAG, "*** ANTENNA: " + a);
                             char antIsActive = choicedInBin.charAt(invertIndex(a)); // Valore (leggere/non leggere) per antenna attuale (intero)
                             Log.d(TAG, "*** Valore: " + antIsActive);
-                            if(antIsActive == 1){
+                            if(antIsActive == '1'){
 
                                 // Leggo i tag di questa antenna
                                 String caen_src = "Source_" + a; // ex: Source_0 for antenna 0
