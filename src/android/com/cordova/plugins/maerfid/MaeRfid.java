@@ -823,6 +823,7 @@ public class MaeRfid extends CordovaPlugin {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            Log.d(TAG, "AAAAA SEZIONE BUZZER. ActiveBuzzer="+activeBuzzer.toString());
 
             if(activeBuzzer){
                 // estraggo la configurazione (direzione) dei GPIO
