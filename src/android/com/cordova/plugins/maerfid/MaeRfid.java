@@ -834,11 +834,13 @@ public class MaeRfid extends CordovaPlugin {
                 String InputString = Integer.toString(InputSetting, 2); // Direzione dei GPIO (binario)
                 String is = ("0000" + InputString);
                 InputString = is.substring(is.length() - 4); // Direzione dei GPIO (stringa)
+                Log.d(TAG, "AAAAA Direzione GPIO="+InputString);
 
                 // verifico se il pin a cui è assegnato il buzzer è effettivamente di uscita
                 char valueBuzzerActivation = InputString.charAt(invertIndex(buzzerPin));
+                Log.d(TAG, "AAAAA Pin designato per il buzzer (invertito): "+invertIndex(buzzerPin)+" - Valore di direzione: "+valueBuzzerActivation);
 
-                if(valueBuzzerActivation == 1){
+                if(valueBuzzerActivation == '1'){
                     try{
                         Log.d(TAG, "AAAAA ATTIVO LA SEGNALAZIONE D'USCITA");
                         Integer actualValue = reader.GetIO();
