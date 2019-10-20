@@ -479,7 +479,7 @@ public class MaeRfid extends CordovaPlugin {
                     //Log.d(TAG, "Avvio la lettura delle GPIO!");
 
                     // avvio il loop di lettura delle GPIO
-                    new GpioPollong().execute();
+                    new GpioPolling().execute();
 
                 } catch (Exception ex){
                     PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage());
@@ -801,7 +801,7 @@ public class MaeRfid extends CordovaPlugin {
     /*
      * Loop to detect trigger GPIO
      */
-    private class GpioPollong extends AsyncTask<Void, Integer, String>
+    private class GpioPolling extends AsyncTask<Void, Integer, String>
     {
         @Override
         protected void onPreExecute() {
@@ -883,6 +883,10 @@ public class MaeRfid extends CordovaPlugin {
             //Log.d(TAG, "AAAAA ON POST EXECUTE");
 
             JSONObject jnull = new JSONObject();
+            try{
+                Thread.sleep(50);
+            }
+            catch(Exception e){}
             readTagLoop(jnull, callbackContext);
 
 
