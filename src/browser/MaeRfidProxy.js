@@ -18,7 +18,7 @@ function configCaen(type, data, success, errorCallback) {
     success();
 }
 
-function configCaen(type, data, success, errorCallback) {
+function waitRfid(type, data, success, errorCallback) {
     var now = new Date();
     var result = {
         NumberTags: 1,
