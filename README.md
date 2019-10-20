@@ -17,8 +17,10 @@ It is also possible to install via repo url directly ( unstable )
 ### Supported Platforms
 
 - Android
+- Browser
 
-The plugin creates the object `maerfid`
+The plugin creates the object `maerfid`.
+** NOTE: ** The browser platform version obviously does not communicate with the Rfid Caen reader. This platform exposes all the methods provided by the Android platform and returns a default value for each method. The purpose is to allow the plugin to be debugged via the Browser platform.
 
 
 ## HOW IT WORKS ##
