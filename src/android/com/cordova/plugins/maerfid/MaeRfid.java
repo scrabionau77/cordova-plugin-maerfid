@@ -884,7 +884,7 @@ public class MaeRfid extends CordovaPlugin {
 
             JSONObject jnull = new JSONObject();
             try{
-                Thread.sleep(buzzerStartDuration);
+                Thread.sleep(1000); // ritardo necessario per evitare che il timing del lampeggiamento venga impostato dalla funzione di lettura tag, laddove un tag sia subito disponibile!
                 readTagLoop(jnull, callbackContext);
             }
             catch(Exception e){}
