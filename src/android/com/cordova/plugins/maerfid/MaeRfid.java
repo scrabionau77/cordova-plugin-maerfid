@@ -510,6 +510,7 @@ public class MaeRfid extends CordovaPlugin {
 
 
                     org.json.JSONObject JsonOut = new org.json.JSONObject();
+                    org.json.JSONObject JsonTagList = new org.json.JSONObject();
                     while(System.currentTimeMillis() < end) {
 
                         // devo misurare da tutte le antenne previste per l'ingresso GPIO a cui è stato applicato un livello logico alto
@@ -561,7 +562,7 @@ public class MaeRfid extends CordovaPlugin {
                                         obj.put("TID", tag.GetTID());
                                         obj.put("TimeStamp", tag.GetTimeStamp());
 
-                                        JsonOut.put("tag_"+x, obj);
+                                        JsonTagList.put("tag_"+x, obj);
                                         numberTags++;
                                     }
 
@@ -586,6 +587,8 @@ public class MaeRfid extends CordovaPlugin {
                             BuzzerRealDuration = buzzerFailDuration;
                             new Buzzer().execute(); // Attivo la segnalazione di lettura senza tag
                         }
+                    } else {
+                        JsonOut.put("TagList", JsonTagList);
                     }
 
                     // manca il FILTER "ARRAY" x togliere i doppioni
