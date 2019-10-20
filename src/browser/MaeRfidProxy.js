@@ -56,7 +56,7 @@ module.exports = {
     requestPermission: requestPermission,
     connect: connect,
     configCaen: configCaen,
-    waitRfid: waitrfid,
+    waitRfid: waitRfid,
     disconnect: disconnect,
     readGpioConfig: readGpioConfig,
     readGpioValue: readGpioValue,
