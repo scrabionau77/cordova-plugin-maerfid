@@ -41,7 +41,7 @@ function readGpioValue(type, data, success, errorCallback) {
     success("0000");
 }
 
-function configCaen(type, data, success, errorCallback) {
+function readRfid(type, data, success, errorCallback) {
     var now = new Date();
     var result = {
         NumberTags: 1,
@@ -56,7 +56,7 @@ module.exports = {
     requestPermission: requestPermission,
     connect: connect,
     configCaen: configCaen,
-    waitRfid: waitRfid,
+    waitRfid: waitrfid,
     disconnect: disconnect,
     readGpioConfig: readGpioConfig,
     readGpioValue: readGpioValue,
