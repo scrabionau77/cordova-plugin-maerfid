@@ -884,10 +884,11 @@ public class MaeRfid extends CordovaPlugin {
 
             JSONObject jnull = new JSONObject();
             try{
-                Thread.sleep(50);
+                Thread.sleep(buzzerStartDuration);
+                readTagLoop(jnull, callbackContext);
             }
             catch(Exception e){}
-            readTagLoop(jnull, callbackContext);
+
 
 
             super.onPostExecute(result);
