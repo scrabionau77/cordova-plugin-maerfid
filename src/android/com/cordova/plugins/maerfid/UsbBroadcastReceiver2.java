@@ -47,11 +47,29 @@ public class UsbBroadcastReceiver2 extends BroadcastReceiver {
 			// deal with the user answer about the permission
 			if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 				Log.d(TAG, "Permission to connect to the device was accepted!");
-				callbackContext.success("Permission to connect to the device was accepted!");
+				//callbackContext.success("Permission to connect to the device was accepted!");
+
+				org.json.JSONObject res = new org.json.JSONObject();
+				try{
+					res.put("success", true);
+					res.put("code", 1);
+					res.put("message", "Permission to connect to the device was accepted!");
+				} catch(Exception e){}
+				PluginResult result = new PluginResult(PluginResult.Status.OK, res); // ListArr.toString()
+				callbackContext.sendPluginResult(result);
 			} 
 			else {
 				Log.d(TAG, "Permission to connect to the device was denied!");
-				callbackContext.error("Permission to connect to the device was denied!");
+				//callbackContext.error("Permission to connect to the device was denied!");
+
+				org.json.JSONObject res = new org.json.JSONObject();
+				try{
+					res.put("success", false);
+					res.put("code", 0);
+					res.put("message", "Permission to connect to the device was denied!");
+				} catch(Exception e){}
+				PluginResult result = new PluginResult(PluginResult.Status.OK, res); // ListArr.toString()
+				callbackContext.sendPluginResult(result);
 			}
 			// unregister the broadcast receiver since it's no longer needed
 			activity.unregisterReceiver(this);
