@@ -256,7 +256,14 @@ public class MaeRfid extends CordovaPlugin {
                 else {
                     // no available drivers
                     Log.d(TAG, "No device found!");
-                    callbackContext.error("No device found!");
+                    //callbackContext.error("No device found!");
+
+                    org.json.JSONObject res = new org.json.JSONObject();
+                    res.put("success", false);
+                    res.put("code", 0);
+                    res.put("message", "No device found!");
+                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, res); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
                 }
             }
         });
