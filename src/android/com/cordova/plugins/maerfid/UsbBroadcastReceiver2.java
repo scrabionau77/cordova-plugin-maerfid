@@ -8,6 +8,7 @@ import android.hardware.usb.UsbManager;
 import android.util.Log;
 
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.PluginResult;
 
 /**
  * Custom {@link BroadcastReceiver} that can talk through a cordova {@link CallbackContext}
