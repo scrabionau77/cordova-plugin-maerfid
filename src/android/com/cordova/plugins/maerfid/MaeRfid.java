@@ -223,7 +223,16 @@ public class MaeRfid extends CordovaPlugin {
                     }
                     else {
                         Log.d(TAG, "Unknown driver!");
-                        callbackContext.error("Unknown driver!");
+                        //callbackContext.error("Unknown driver!");
+
+                        org.json.JSONObject res = new org.json.JSONObject();
+                        try{
+                            res.put("success", false);
+                            res.put("code", 1);
+                            res.put("message", "Unknown driver!");
+                        } catch(Exception e){}
+                        PluginResult result = new PluginResult(PluginResult.Status.ERROR, res); // ListArr.toString()
+                        callbackContext.sendPluginResult(result);
                     }
 
                     prober = new UsbSerialProber(customTable);
@@ -259,9 +268,11 @@ public class MaeRfid extends CordovaPlugin {
                     //callbackContext.error("No device found!");
 
                     org.json.JSONObject res = new org.json.JSONObject();
-                    res.put("success", false);
-                    res.put("code", 0);
-                    res.put("message", "No device found!");
+                    try{
+                        res.put("success", false);
+                        res.put("code", 0);
+                        res.put("message", "No device found!");
+                    } catch(Exception e){}
                     PluginResult result = new PluginResult(PluginResult.Status.ERROR, res); // ListArr.toString()
                     callbackContext.sendPluginResult(result);
                 }
