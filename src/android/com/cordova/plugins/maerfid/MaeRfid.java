@@ -289,7 +289,7 @@ public class MaeRfid extends CordovaPlugin {
     private void connect(final JSONObject opts, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
-
+                /*
                 int src = 0;
                 if (opts.has("source")) {
                     Object o_src = opts.opt("source"); //can be an integer Number or a hex String
@@ -299,8 +299,7 @@ public class MaeRfid extends CordovaPlugin {
                         src = 0;
                     }
                 }
-
-                //String caen_src = "Source_" + src; // ex: Source_0 for antenna 0
+                */
 
                 try {
                     Log.d(TAG, "Avvio apertura porta seriale!");
@@ -309,7 +308,6 @@ public class MaeRfid extends CordovaPlugin {
                     VCPSerialPort port = ports.get(0);
 
                     reader.Connect(port);
-                    //CAENRFIDLogicalSource mySource = reader.GetSource(caen_src);
 
                     PluginResult.Status status = PluginResult.Status.OK;
                     PluginResult result = new PluginResult(PluginResult.Status.OK, "Reader Connesso"); // ListArr.toString()
