@@ -88,6 +88,7 @@ public class MaeRfid extends CordovaPlugin {
     private static final String ACTION_CONFIG_CAEN = "configCaen";
     private static final String ACTION_WAIT_RFID = "waitRfid";
     private static final String ACTION_DISCONNECT = "disconnect";
+    private static final String ACTION_RESET = "reset";
 
 
     private UsbManager manager; // UsbManager instance to deal with permission and opening
@@ -168,6 +169,9 @@ public class MaeRfid extends CordovaPlugin {
         } else if(ACTION_DISCONNECT.equals(action)){
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             disconnect(opts, callbackContext);
+        } else if(ACTION_RESET.equals(action)) {
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            resetConnection(opts, callbackContext);
         } else {
             return false;
         }
@@ -655,6 +659,24 @@ public class MaeRfid extends CordovaPlugin {
 
                 } catch (Exception ex){
                     reader = new CAENRFIDReader();
+                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+                }
+            }
+        });
+    }
+
+
+
+
+    private void resetConnection(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+
+                try {
+                    reader = new CAENRFIDReader();
+
+                } catch (Exception ex){
                     PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()
                     callbackContext.sendPluginResult(result);
                 }
