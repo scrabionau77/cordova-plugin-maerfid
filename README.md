@@ -197,6 +197,14 @@ maerfid.disconnect({}, function(success){}, function(error){});
 ```
 
 
+### RESET
+Useful in case of disconnection of the OTG cable. If the OTG cable is disconnected after initialization, the reading and setting methods will return an error callback. This behavior continues even if the cable is reconnected. To restore the operation of the methods listed above it is necessary to invoke the reset method and initialize the reader again (ie request both the USB permissions and the connection to the reader).
+
+```js
+maerfid.reset({}, function(success){}, function(error){});
+```
+
+
 ## OTHER METHODS ##
 
 
