@@ -654,6 +654,7 @@ public class MaeRfid extends CordovaPlugin {
                     callbackContext.sendPluginResult(result);
 
                 } catch (Exception ex){
+                    reader = new CAENRFIDReader();
                     PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()
                     callbackContext.sendPluginResult(result);
                 }
