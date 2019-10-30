@@ -88,7 +88,7 @@ public class MaeRfid extends CordovaPlugin {
     private static final String ACTION_CONFIG_CAEN = "configCaen";
     private static final String ACTION_WAIT_RFID = "waitRfid";
     private static final String ACTION_DISCONNECT = "disconnect";
-    private static final String ACTION_RESET = "reset";
+    private static final String ACTION_RESET = "resetReader";
 
 
     private UsbManager manager; // UsbManager instance to deal with permission and opening
@@ -675,6 +675,8 @@ public class MaeRfid extends CordovaPlugin {
 
                 try {
                     reader = new CAENRFIDReader();
+                    PluginResult result = new PluginResult(PluginResult.Status.OK, "Reset avvenuto"); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
 
                 } catch (Exception ex){
                     PluginResult result = new PluginResult(PluginResult.Status.ERROR, ex.getMessage()); // ListArr.toString()

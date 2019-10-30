@@ -133,16 +133,16 @@ var maerfid = {
         }
         
         if (typeof errorCallback != "function") {
-            console.log("MaeRfid.disconnect reset: error callback parameter not a function");
+            console.log("MaeRfid.reset failure: error callback parameter not a function");
             return;
         }
     
         if (typeof successCallback != "function") {
-            console.log("MaeRfid.disconnect reset: success callback parameter must be a function");
+            console.log("MaeRfid.reset failure: success callback parameter must be a function");
             return;
         }
     
-        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'reset', [{'opts': opts}]);
+        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'resetReader', [{'opts': opts}]);
     },
 
     readGpioConfig: function (opts, successCallback, errorCallback) {
