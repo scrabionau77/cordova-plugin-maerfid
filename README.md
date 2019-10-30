@@ -190,7 +190,7 @@ Note: value must be greater than 0.
 
 
 ### DISCONNECT
-Close HADRON device connection.
+Close HADRON device connection. Note: this method requires that the connection to the reader is active. Instead, it will return a callback error if the Android device cannot communicate with the Reader (for example, if the OTG cable is disconnected).
 
 ```js
 maerfid.disconnect({}, function(success){}, function(error){});
