@@ -157,7 +157,7 @@ var options = {
     buzzerDuration: 1000,       // Durations when one ore more tags are detected (milliseconds)
     buzzerRepeat: 1,            // Number of desired repetitions
     buzzerStartDuration: 300,   // Duration when an input is detected
-    buzzerStartRepeat: 1,          // Number of desired repetitions
+    buzzerStartRepeat: 1,       // Number of desired repetitions
     buzzerFailDuration: 150,    // Duration when no tags are detected
     buzzerFailRepeat: 3         // Number of desired repetitions
 };
