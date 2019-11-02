@@ -132,14 +132,13 @@ The following table show `outputVal` variable value and corresponding Output pin
 
 ### WAIT FOR RFID
 The HADRON Reader device allows you to connect up to 4 antennas for reading RFID tags.
-This method involves reading the RFID tags when activating one of the GPIO pins. In other words, when a positive voltage (>= 5V) is applied to one of the GPIO pins set as input, the reading of the RFID tags starts.
+This method involves reading the RFID tags when activating one of the GPIO pins. In other words, when a positive voltage (>= 3.3V) is applied to one of the GPIO pins set as input, the reading of the RFID tags starts.
 This method requires the `options` parameter. With this parameter we can choose:
 1) Which antennas correspond to each GPIO input (for each input it is possible to choose one or more antennas from which to read the RFID);
 2) How long to read the RFIDs after applying the positive voltage to the GPIO input.
 3) When the reading is complete you can use an output GPIO to activate lights or other devices. The option parameter contains 3 dedicated keys (enable/disable, duration of activation, GPIO pin to be activated. See `options` parameter in example below for more details)
 
-The Rfid reading is repeated several times in the time frame set in the options parameter. When finished, the list of read tags is returned.
-The list of read tags is filtered to prevent the same tag from being repeated in the returned list.
+The Rfid reading is repeated several times in the time frame set in the options parameter. When finished, the list of readed tags is returned and can therefore contain repeated tags (you will then have to filter the data received to eliminate duplicates).
 The method stops when the result is returned. Therefore it must be called back to start further reading.
 
 Note: only the GPIOs set as input will be read.
@@ -166,6 +165,7 @@ var options = {
 maerfid.waitRfid(options, function(success){}, function(error){});
 ```
 
+**NOTE: the buzzerPin parameter is a boolean. All others are numerical. Make sure you respect the requested data types or the app may crash.**
 
 The following table show `Input0Antennas`, `Input1Antennas`, `Input2Antennas`, `Input3Antennas` values and corresponding antennas readed.
 Note: value must be greater than 0.
@@ -298,6 +298,13 @@ A full example could be:
         });
     });
 ```
+
+
+## TODO ##
+
+- filter the list of tags to eliminate duplicates in the `waitRfid` method
+- insert the verification of the type of data supplied to the `waitRfid` method to avoid the app crash in case of wrong format
+
 
 
 ## Thanks ##
