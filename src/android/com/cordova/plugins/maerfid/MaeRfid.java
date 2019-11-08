@@ -97,6 +97,9 @@ public class MaeRfid extends CordovaPlugin {
     private static final String ACTION_RESET = "resetReader";
     private static final String ACTION_SETUPBLUETOOTH = "setupBluetooth";
 
+    private UUID myUUID;
+    private final String UUID_STRING_WELL_KNOWN_SPP = "00001101-0000-1000-8000-00805F9B34FB";
+
 
     private UsbManager manager; // UsbManager instance to deal with permission and opening
     private UsbSerialDriver driver; // The current driver that handle the serial port
