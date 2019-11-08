@@ -852,8 +852,9 @@ public class MaeRfid extends CordovaPlugin {
                 bluetoothAdapter.startDiscovery();
 
 
-
-
+                Log.d(TAG, "AAAAA");
+                PluginResult result = new PluginResult(PluginResult.Status.OK, "Yeahh"); // ListArr.toString()
+                callbackContext.sendPluginResult(result);
 
             }
         });
