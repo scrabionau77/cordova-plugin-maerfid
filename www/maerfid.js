@@ -205,7 +205,27 @@ var maerfid = {
         }
     
         cordova.exec(successCallback, errorCallback, 'MaeRfid', 'readTag', [{'opts': opts}]);
-    }
+    },
+
+    setupBluetooth: function (opts, successCallback, errorCallback) {
+        opts = {}; // not used for now!
+        if (errorCallback == null) {
+            errorCallback = function () {
+            };
+        }
+    
+        if (typeof errorCallback != "function") {
+            console.log("MaeRfid.setupBluetooth failure: error callback parameter not a function");
+            return;
+        }
+    
+        if (typeof successCallback != "function") {
+            console.log("MaeRfid.setupBluetooth failure: success callback parameter must be a function");
+            return;
+        }
+
+        cordova.exec(successCallback, errorCallback, 'MaeRfid', 'setupBluetooth', [{'opts': opts}]);
+    },
 
 }
 

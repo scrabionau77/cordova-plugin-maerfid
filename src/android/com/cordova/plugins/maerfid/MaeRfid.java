@@ -89,6 +89,7 @@ public class MaeRfid extends CordovaPlugin {
     private static final String ACTION_WAIT_RFID = "waitRfid";
     private static final String ACTION_DISCONNECT = "disconnect";
     private static final String ACTION_RESET = "resetReader";
+    private static final String ACTION_SETUPBLUETOOTH = "setupBluetooth";
 
 
     private UsbManager manager; // UsbManager instance to deal with permission and opening
@@ -172,6 +173,9 @@ public class MaeRfid extends CordovaPlugin {
         } else if(ACTION_RESET.equals(action)) {
             JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
             resetConnection(opts, callbackContext);
+        } else if(ACTION_SETUPBLUETOOTH.equals(action)) {
+            JSONObject opts = arg_object.has("opts")? arg_object.getJSONObject("opts") : new JSONObject();
+            setupBluetooth(opts, callbackContext);
         } else {
             return false;
         }
@@ -179,7 +183,7 @@ public class MaeRfid extends CordovaPlugin {
     }
 
 
-
+    
 
 
 
@@ -801,6 +805,68 @@ public class MaeRfid extends CordovaPlugin {
             }
         });
     }
+
+
+    
+    /**
+     * SETUP BLUETOOTH
+     */
+    private void setupBluetooth(final JSONObject opts, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                Context cont = cordova.getActivity().getApplication().getApplicationContext();
+                if (!cont.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)){
+                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, "Funzione bluetooth non supportata"); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+                    return;
+                }
+
+                //using the well-known SPP UUID
+                myUUID = UUID.fromString(UUID_STRING_WELL_KNOWN_SPP);
+                BluetoothAdapter bluetoothAdapter;
+
+                bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                if (bluetoothAdapter == null) {
+                    PluginResult result = new PluginResult(PluginResult.Status.ERROR, "Funzione bluetooth non supportata da questa piattaforma hardware"); // ListArr.toString()
+                    callbackContext.sendPluginResult(result);
+                    return;
+                }
+
+                // cerco i devices
+                IntentFilter filter = new IntentFilter();
+
+                filter.addAction(BluetoothDevice.ACTION_FOUND);
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+                
+                cont.registerReceiver(mReceiver, filter);
+                bluetoothAdapter.startDiscovery();
+
+
+
+
+
+            }
+        });
+    }
+
+
+
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                //discovery starts, we can show progress dialog or perform other tasks
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                //discovery finishes, dismis progress dialog
+            } else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                //bluetooth device found
+                BluetoothDevice device = (BluetoothDevice) intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            }
+        }
+    };
+
 
 
 
