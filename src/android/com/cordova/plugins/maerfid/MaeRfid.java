@@ -69,6 +69,12 @@ import androidx.annotation.Nullable;
 import com.caen.RFIDLibrary.*;
 import com.caen.VCPSerialPort.VCPSerialPort;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import java.util.UUID;
+import android.content.BroadcastReceiver;
+
 
 
 public class MaeRfid extends CordovaPlugin {
